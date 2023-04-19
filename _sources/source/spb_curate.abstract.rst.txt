@@ -1,0 +1,29 @@
+spb\_curate.abstract package
+============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   spb_curate.abstract.api
+
+Submodules
+----------
+
+spb\_curate.abstract.superb\_ai\_object module
+----------------------------------------------
+
+.. automodule:: spb_curate.abstract.superb_ai_object
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: spb_curate.abstract
+   :members:
+   :undoc-members:
+   :show-inheritance:

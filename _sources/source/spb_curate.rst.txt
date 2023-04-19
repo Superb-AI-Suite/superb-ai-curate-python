@@ -1,0 +1,86 @@
+spb\_curate package
+===================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   spb_curate.abstract
+   spb_curate.curate
+
+Submodules
+----------
+
+spb\_curate.api\_requestor module
+---------------------------------
+
+.. automodule:: spb_curate.api_requestor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.config module
+-------------------------
+
+.. automodule:: spb_curate.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.error module
+------------------------
+
+.. automodule:: spb_curate.error
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.http\_client module
+-------------------------------
+
+.. automodule:: spb_curate.http_client
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.object\_mapping module
+----------------------------------
+
+.. automodule:: spb_curate.object_mapping
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.superb\_ai\_response module
+---------------------------------------
+
+.. automodule:: spb_curate.superb_ai_response
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.util module
+-----------------------
+
+.. automodule:: spb_curate.util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spb\_curate.version module
+--------------------------
+
+.. automodule:: spb_curate.version
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: spb_curate
+   :members:
+   :undoc-members:
+   :show-inheritance:

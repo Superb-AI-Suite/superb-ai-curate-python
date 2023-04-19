@@ -1,0 +1,7 @@
+spb_curate
+==========
+
+.. toctree::
+   :maxdepth: 4
+
+   spb_curate

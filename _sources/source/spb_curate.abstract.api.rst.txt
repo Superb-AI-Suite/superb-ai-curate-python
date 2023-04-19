@@ -1,0 +1,21 @@
+spb\_curate.abstract.api package
+================================
+
+Submodules
+----------
+
+spb\_curate.abstract.api.resource module
+----------------------------------------
+
+.. automodule:: spb_curate.abstract.api.resource
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: spb_curate.abstract.api
+   :members:
+   :undoc-members:
+   :show-inheritance:

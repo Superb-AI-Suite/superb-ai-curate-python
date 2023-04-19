@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>spb_curate package &mdash; superb-ai-curate 1.0.0b1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spb_curate.abstract package" href="spb_curate.abstract.html" />
+    <link rel="prev" title="spb_curate" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> superb-ai-curate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0b1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/overview.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spb_curate</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">spb_curate package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html">spb_curate.abstract package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html">spb_curate.curate package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.api_requestor">spb_curate.api_requestor module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.api_requestor.APIRequestor"><code class="docutils literal notranslate"><span class="pre">APIRequestor</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.config">spb_curate.config module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.error">spb_curate.error module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.APIConnectionError"><code class="docutils literal notranslate"><span class="pre">APIConnectionError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.APIError"><code class="docutils literal notranslate"><span class="pre">APIError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.AuthenticationError"><code class="docutils literal notranslate"><span class="pre">AuthenticationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.BadRequestError"><code class="docutils literal notranslate"><span class="pre">BadRequestError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.ConflictError"><code class="docutils literal notranslate"><span class="pre">ConflictError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.MaxFieldCountReachedError"><code class="docutils literal notranslate"><span class="pre">MaxFieldCountReachedError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.NotFoundError"><code class="docutils literal notranslate"><span class="pre">NotFoundError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.QuerySyntaxError"><code class="docutils literal notranslate"><span class="pre">QuerySyntaxError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.SuperbAIError"><code class="docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.SystemError"><code class="docutils literal notranslate"><span class="pre">SystemError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.TooManyRequestsError"><code class="docutils literal notranslate"><span class="pre">TooManyRequestsError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.error.ValidationError"><code class="docutils literal notranslate"><span class="pre">ValidationError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.http_client">spb_curate.http_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.http_client.RequestsClient"><code class="docutils literal notranslate"><span class="pre">RequestsClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.object_mapping">spb_curate.object_mapping module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.superb_ai_response">spb_curate.superb_ai_response module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.superb_ai_response.SuperbAIResponse"><code class="docutils literal notranslate"><span class="pre">SuperbAIResponse</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.util">spb_curate.util module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.convert_to_superb_ai_object"><code class="docutils literal notranslate"><span class="pre">convert_to_superb_ai_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.get_object_mapping"><code class="docutils literal notranslate"><span class="pre">get_object_mapping()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.log_debug"><code class="docutils literal notranslate"><span class="pre">log_debug()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.log_info"><code class="docutils literal notranslate"><span class="pre">log_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.logfmt"><code class="docutils literal notranslate"><span class="pre">logfmt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.validate_argument_list"><code class="docutils literal notranslate"><span class="pre">validate_argument_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.validate_argument_value"><code class="docutils literal notranslate"><span class="pre">validate_argument_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.validate_arguments_require_all"><code class="docutils literal notranslate"><span class="pre">validate_arguments_require_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spb_curate.util.validate_arguments_require_one"><code class="docutils literal notranslate"><span class="pre">validate_arguments_require_one()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate.version">spb_curate.version module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spb_curate">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">superb-ai-curate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">spb_curate</a> &raquo;</li>
+        
+      <li>spb_curate package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/source/spb_curate.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="spb-curate-package">
+<h1>spb_curate package<a class="headerlink" href="#spb-curate-package" title="Permalink to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spb_curate.abstract.html">spb_curate.abstract package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.api.html">spb_curate.abstract.api package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#module-spb_curate.abstract.api.resource">spb_curate.abstract.api.resource module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#module-spb_curate.abstract.api">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.html#module-spb_curate.abstract.superb_ai_object">spb_curate.abstract.superb_ai_object module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.ReprJSONEncoder"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.ReprJSONEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.api_base"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.api_base()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.construct_from_dict"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.construct_from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.get_cls_by_discriminator"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.get_cls_by_discriminator()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.get_endpoint"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.get_endpoint()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.load_from_dict"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.load_from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.request"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.to_dict"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.to_dict_deep"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.to_dict_deep()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.html#spb_curate.abstract.superb_ai_object.SuperbAIObject.update"><code class="docutils literal notranslate"><span class="pre">SuperbAIObject.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.html#module-spb_curate.abstract">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spb_curate.curate.html">spb_curate.curate package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.curate.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.model.html">spb_curate.curate.model package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.model.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.model.html#module-spb_curate.curate.model.annotation_types">spb_curate.curate.model.annotation_types module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.model.html#module-spb_curate.curate.model">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.curate.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.curate.html#module-spb_curate.curate.api">spb_curate.curate.api module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation"><code class="docutils literal notranslate"><span class="pre">Annotation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation.create"><code class="docutils literal notranslate"><span class="pre">Annotation.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation.create_bulk"><code class="docutils literal notranslate"><span class="pre">Annotation.create_bulk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation.delete"><code class="docutils literal notranslate"><span class="pre">Annotation.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation.fetch"><code class="docutils literal notranslate"><span class="pre">Annotation.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation.modify"><code class="docutils literal notranslate"><span class="pre">Annotation.modify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Annotation.refresh"><code class="docutils literal notranslate"><span class="pre">Annotation.refresh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.BaseImageSource"><code class="docutils literal notranslate"><span class="pre">BaseImageSource</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.add_annotations"><code class="docutils literal notranslate"><span class="pre">Dataset.add_annotations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.add_images"><code class="docutils literal notranslate"><span class="pre">Dataset.add_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.create"><code class="docutils literal notranslate"><span class="pre">Dataset.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.create_slice"><code class="docutils literal notranslate"><span class="pre">Dataset.create_slice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.delete"><code class="docutils literal notranslate"><span class="pre">Dataset.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.delete_images"><code class="docutils literal notranslate"><span class="pre">Dataset.delete_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_all"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_all_iter"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_all_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_images"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_images_iter"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_images_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_page"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_page()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_page_iter"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_page_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.fetch_slice"><code class="docutils literal notranslate"><span class="pre">Dataset.fetch_slice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.modify"><code class="docutils literal notranslate"><span class="pre">Dataset.modify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Dataset.refresh"><code class="docutils literal notranslate"><span class="pre">Dataset.refresh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.create_bulk"><code class="docutils literal notranslate"><span class="pre">Image.create_bulk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.delete"><code class="docutils literal notranslate"><span class="pre">Image.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.delete_bulk"><code class="docutils literal notranslate"><span class="pre">Image.delete_bulk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.fetch"><code class="docutils literal notranslate"><span class="pre">Image.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.fetch_all"><code class="docutils literal notranslate"><span class="pre">Image.fetch_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.fetch_all_iter"><code class="docutils literal notranslate"><span class="pre">Image.fetch_all_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.fetch_page"><code class="docutils literal notranslate"><span class="pre">Image.fetch_page()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.fetch_page_iter"><code class="docutils literal notranslate"><span class="pre">Image.fetch_page_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.modify"><code class="docutils literal notranslate"><span class="pre">Image.modify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Image.refresh"><code class="docutils literal notranslate"><span class="pre">Image.refresh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.ImageSourceLocal"><code class="docutils literal notranslate"><span class="pre">ImageSourceLocal</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.ImageSourceLocal.get_asset"><code class="docutils literal notranslate"><span class="pre">ImageSourceLocal.get_asset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.ImageSourceLocal.get_asset_size"><code class="docutils literal notranslate"><span class="pre">ImageSourceLocal.get_asset_size()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.ImageSourceLocal.load_asset"><code class="docutils literal notranslate"><span class="pre">ImageSourceLocal.load_asset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.ImageSourceLocal.unload_asset"><code class="docutils literal notranslate"><span class="pre">ImageSourceLocal.unload_asset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.ImageSourceUrl"><code class="docutils literal notranslate"><span class="pre">ImageSourceUrl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.create"><code class="docutils literal notranslate"><span class="pre">Job.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.fetch"><code class="docutils literal notranslate"><span class="pre">Job.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.fetch_all"><code class="docutils literal notranslate"><span class="pre">Job.fetch_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.fetch_all_iter"><code class="docutils literal notranslate"><span class="pre">Job.fetch_all_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.fetch_page"><code class="docutils literal notranslate"><span class="pre">Job.fetch_page()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.fetch_page_iter"><code class="docutils literal notranslate"><span class="pre">Job.fetch_page_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.refresh"><code class="docutils literal notranslate"><span class="pre">Job.refresh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Job.wait_until_complete"><code class="docutils literal notranslate"><span class="pre">Job.wait_until_complete()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.JobType"><code class="docutils literal notranslate"><span class="pre">JobType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.JobType.ANNOTATION_IMPORT"><code class="docutils literal notranslate"><span class="pre">JobType.ANNOTATION_IMPORT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.JobType.DELETE_IMAGES"><code class="docutils literal notranslate"><span class="pre">JobType.DELETE_IMAGES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.JobType.IMAGE_IMPORT"><code class="docutils literal notranslate"><span class="pre">JobType.IMAGE_IMPORT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.JobType.UPDATE_SLICE"><code class="docutils literal notranslate"><span class="pre">JobType.UPDATE_SLICE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.JobType.UPDATE_SLICE_BY_QUERY"><code class="docutils literal notranslate"><span class="pre">JobType.UPDATE_SLICE_BY_QUERY</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping.fetch"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping.fetch_all"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping.fetch_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping.fetch_all_iter"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping.fetch_all_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping.fetch_page"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping.fetch_page()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping.fetch_page_iter"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping.fetch_page_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMapping.refresh"><code class="docutils literal notranslate"><span class="pre">SearchFieldMapping.refresh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMappingType"><code class="docutils literal notranslate"><span class="pre">SearchFieldMappingType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMappingType.ANNOTATION_CLASS"><code class="docutils literal notranslate"><span class="pre">SearchFieldMappingType.ANNOTATION_CLASS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMappingType.ANNOTATION_METADATA"><code class="docutils literal notranslate"><span class="pre">SearchFieldMappingType.ANNOTATION_METADATA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.SearchFieldMappingType.IMAGE_METADATA"><code class="docutils literal notranslate"><span class="pre">SearchFieldMappingType.IMAGE_METADATA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice"><code class="docutils literal notranslate"><span class="pre">Slice</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.add_images"><code class="docutils literal notranslate"><span class="pre">Slice.add_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.create"><code class="docutils literal notranslate"><span class="pre">Slice.create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.delete"><code class="docutils literal notranslate"><span class="pre">Slice.delete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch"><code class="docutils literal notranslate"><span class="pre">Slice.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch_all"><code class="docutils literal notranslate"><span class="pre">Slice.fetch_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch_all_iter"><code class="docutils literal notranslate"><span class="pre">Slice.fetch_all_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch_images"><code class="docutils literal notranslate"><span class="pre">Slice.fetch_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch_images_iter"><code class="docutils literal notranslate"><span class="pre">Slice.fetch_images_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch_page"><code class="docutils literal notranslate"><span class="pre">Slice.fetch_page()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.fetch_page_iter"><code class="docutils literal notranslate"><span class="pre">Slice.fetch_page_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.modify"><code class="docutils literal notranslate"><span class="pre">Slice.modify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.refresh"><code class="docutils literal notranslate"><span class="pre">Slice.refresh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.Slice.remove_images"><code class="docutils literal notranslate"><span class="pre">Slice.remove_images()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.create_dataset"><code class="docutils literal notranslate"><span class="pre">create_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.fetch_dataset"><code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.curate.html#spb_curate.curate.api.fetch_datasets"><code class="docutils literal notranslate"><span class="pre">fetch_datasets()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.curate.html#module-spb_curate.curate">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-spb_curate.api_requestor">
+<span id="spb-curate-api-requestor-module"></span><h2>spb_curate.api_requestor module<a class="headerlink" href="#module-spb_curate.api_requestor" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.api_requestor.</span></span><span class="sig-name descname"><span class="pre">APIRequestor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor.handle_error_response">
+<span class="sig-name descname"><span class="pre">handle_error_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rbody</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rheaders</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor.handle_error_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor.handle_error_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor.interpret_response">
+<span class="sig-name descname"><span class="pre">interpret_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbody</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rheaders</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor.interpret_response"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor.interpret_response" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#spb_curate.superb_ai_response.SuperbAIResponse" title="spb_curate.superb_ai_response.SuperbAIResponse"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIResponse</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor.request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor.request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor.request_headers">
+<span class="sig-name descname"><span class="pre">request_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor.request_headers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor.request_headers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor.request_raw">
+<span class="sig-name descname"><span class="pre">request_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supplied_headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor.request_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor.request_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mechanism for issuing an API call</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.api_requestor.APIRequestor.specific_api_error">
+<span class="sig-name descname"><span class="pre">specific_api_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rbody</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rheaders</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/api_requestor.html#APIRequestor.specific_api_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.api_requestor.APIRequestor.specific_api_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.config">
+<span id="spb-curate-config-module"></span><h2>spb_curate.config module<a class="headerlink" href="#module-spb_curate.config" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spb_curate.config.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spb_curate.config.Config.access_key">
+<span class="sig-name descname"><span class="pre">access_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spb_curate.config.Config.access_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spb_curate.config.Config.profile">
+<span class="sig-name descname"><span class="pre">profile</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spb_curate.config.Config.profile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spb_curate.config.Config.team_name">
+<span class="sig-name descname"><span class="pre">team_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spb_curate.config.Config.team_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.error">
+<span id="spb-curate-error-module"></span><h2>spb_curate.error module<a class="headerlink" href="#module-spb_curate.error" title="Permalink to this heading">¶</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.APIConnectionError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">APIConnectionError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_retry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#APIConnectionError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.APIConnectionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.APIError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">APIError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#APIError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.APIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.AuthenticationError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">AuthenticationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#AuthenticationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.AuthenticationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 401</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.BadRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">BadRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#BadRequestError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.BadRequestError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 400</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.ConflictError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">ConflictError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#ConflictError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.ConflictError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 409</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.MaxFieldCountReachedError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">MaxFieldCountReachedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#MaxFieldCountReachedError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.MaxFieldCountReachedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 403</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.NotFoundError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">NotFoundError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#NotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.NotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 404</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.QuerySyntaxError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">QuerySyntaxError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#QuerySyntaxError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.QuerySyntaxError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.BadRequestError" title="spb_curate.error.BadRequestError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BadRequestError</span></code></a></p>
+<p>HTTP CODE: 400</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.SuperbAIError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">SuperbAIError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#SuperbAIError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.SuperbAIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.error.SuperbAIError.build_error_object">
+<span class="sig-name descname"><span class="pre">build_error_object</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#SuperbAIError.build_error_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.SuperbAIError.build_error_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.SystemError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">SystemError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#SystemError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.SystemError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 500</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.TooManyRequestsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">TooManyRequestsError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/error.html#TooManyRequestsError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.TooManyRequestsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spb_curate.error.SuperbAIError" title="spb_curate.error.SuperbAIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuperbAIError</span></code></a></p>
+<p>HTTP CODE: 429</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="spb_curate.error.ValidationError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.error.</span></span><span class="sig-name descname"><span class="pre">ValidationError</span></span><a class="reference internal" href="../_modules/spb_curate/error.html#ValidationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.error.ValidationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.http_client">
+<span id="spb-curate-http-client-module"></span><h2>spb_curate.http_client module<a class="headerlink" href="#module-spb_curate.http_client" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spb_curate.http_client.RequestsClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.http_client.</span></span><span class="sig-name descname"><span class="pre">RequestsClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/http_client.html#RequestsClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.http_client.RequestsClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.http_client.RequestsClient.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/http_client.html#RequestsClient.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.http_client.RequestsClient.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spb_curate.http_client.RequestsClient.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'requests'</span></em><a class="headerlink" href="#spb_curate.http_client.RequestsClient.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.http_client.RequestsClient.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/http_client.html#RequestsClient.request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.http_client.RequestsClient.request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.object_mapping">
+<span id="spb-curate-object-mapping-module"></span><h2>spb_curate.object_mapping module<a class="headerlink" href="#module-spb_curate.object_mapping" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-spb_curate.superb_ai_response">
+<span id="spb-curate-superb-ai-response-module"></span><h2>spb_curate.superb_ai_response module<a class="headerlink" href="#module-spb_curate.superb_ai_response" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spb_curate.superb_ai_response.SuperbAIResponse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.superb_ai_response.</span></span><span class="sig-name descname"><span class="pre">SuperbAIResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/superb_ai_response.html#SuperbAIResponse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.superb_ai_response.SuperbAIResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="spb_curate.superb_ai_response.SuperbAIResponse.idempotency_key">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idempotency_key</span></span><a class="headerlink" href="#spb_curate.superb_ai_response.SuperbAIResponse.idempotency_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="spb_curate.superb_ai_response.SuperbAIResponse.request_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">request_id</span></span><a class="headerlink" href="#spb_curate.superb_ai_response.SuperbAIResponse.request_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.util">
+<span id="spb-curate-util-module"></span><h2>spb_curate.util module<a class="headerlink" href="#module-spb_curate.util" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.convert_to_superb_ai_object">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">convert_to_superb_ai_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#convert_to_superb_ai_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.convert_to_superb_ai_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.get_object_mapping">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">get_object_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#get_object_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.get_object_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the’s the object class mapped against the ‘object type’.
+Using this function avoids a circular import.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The dictionary of the object type mappings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.log_debug">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">log_debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#log_debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.log_debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.log_info">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">log_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#log_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.log_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.logfmt">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">logfmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">props</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#logfmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.logfmt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.validate_argument_list">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">validate_argument_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_required</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#validate_argument_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.validate_argument_list" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">any</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.validate_argument_value">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">validate_argument_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_required</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#validate_argument_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.validate_argument_value" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">any</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.validate_arguments_require_all">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">validate_arguments_require_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#validate_arguments_require_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.validate_arguments_require_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates that all of the provided key-value fields are valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>items</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">any</span></code>]]) – Key-value tuples that represent required fields.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spb_curate.util.validate_arguments_require_one">
+<span class="sig-prename descclassname"><span class="pre">spb_curate.util.</span></span><span class="sig-name descname"><span class="pre">validate_arguments_require_one</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/util.html#validate_arguments_require_one"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.util.validate_arguments_require_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates that one of the provided fields are valid.
+If the list item is a list itself, then it will require all the
+items within to have valid values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>items</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">any</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">any</span></code>]]]]) – Key-value tuples or list of the tuples that represent required fields.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#spb_curate.error.ValidationError" title="spb_curate.error.ValidationError"><strong>error.ValidationError</strong></a> – Thrown when a required field is missing.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.version">
+<span id="spb-curate-version-module"></span><h2>spb_curate.version module<a class="headerlink" href="#module-spb_curate.version" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-spb_curate">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spb_curate" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="spb_curate.abstract.html" class="btn btn-neutral float-right" title="spb_curate.abstract package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="spb_curate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Superb AI.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

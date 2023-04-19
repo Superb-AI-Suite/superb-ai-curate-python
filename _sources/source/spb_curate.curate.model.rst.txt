@@ -1,0 +1,21 @@
+spb\_curate.curate.model package
+================================
+
+Submodules
+----------
+
+spb\_curate.curate.model.annotation\_types module
+-------------------------------------------------
+
+.. automodule:: spb_curate.curate.model.annotation_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: spb_curate.curate.model
+   :members:
+   :undoc-members:
+   :show-inheritance:

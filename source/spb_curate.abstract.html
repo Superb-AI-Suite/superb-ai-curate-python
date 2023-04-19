@@ -1,0 +1,392 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>spb_curate.abstract package &mdash; superb-ai-curate 1.0.0b1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spb_curate.abstract.api package" href="spb_curate.abstract.api.html" />
+    <link rel="prev" title="spb_curate package" href="spb_curate.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> superb-ai-curate
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0b1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/overview.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro/tutorial.html">Tutorial</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">spb_curate</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spb_curate.html">spb_curate package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="spb_curate.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">spb_curate.abstract package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.curate.html">spb_curate.curate package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.api_requestor">spb_curate.api_requestor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.config">spb_curate.config module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.error">spb_curate.error module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.http_client">spb_curate.http_client module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.object_mapping">spb_curate.object_mapping module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.superb_ai_response">spb_curate.superb_ai_response module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.util">spb_curate.util module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate.version">spb_curate.version module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.html#module-spb_curate">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">superb-ai-curate</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">spb_curate</a> &raquo;</li>
+        
+          <li><a href="spb_curate.html">spb_curate package</a> &raquo;</li>
+        
+      <li>spb_curate.abstract package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/source/spb_curate.abstract.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="spb-curate-abstract-package">
+<h1>spb_curate.abstract package<a class="headerlink" href="#spb-curate-abstract-package" title="Permalink to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spb_curate.abstract.api.html">spb_curate.abstract.api package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.api.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.api.html#module-spb_curate.abstract.api.resource">spb_curate.abstract.api.resource module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.APIResource"><code class="docutils literal notranslate"><span class="pre">APIResource</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.APIResource.fetch"><code class="docutils literal notranslate"><span class="pre">APIResource.fetch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.APIResource.refresh"><code class="docutils literal notranslate"><span class="pre">APIResource.refresh()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.CreateResource"><code class="docutils literal notranslate"><span class="pre">CreateResource</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.CreateResource.create"><code class="docutils literal notranslate"><span class="pre">CreateResource.create()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.DeleteResource"><code class="docutils literal notranslate"><span class="pre">DeleteResource</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.DeleteResource.delete"><code class="docutils literal notranslate"><span class="pre">DeleteResource.delete()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.ModifyResource"><code class="docutils literal notranslate"><span class="pre">ModifyResource</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.ModifyResource.modify"><code class="docutils literal notranslate"><span class="pre">ModifyResource.modify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.PaginateResource"><code class="docutils literal notranslate"><span class="pre">PaginateResource</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.PaginateResource.fetch_all"><code class="docutils literal notranslate"><span class="pre">PaginateResource.fetch_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.PaginateResource.fetch_all_iter"><code class="docutils literal notranslate"><span class="pre">PaginateResource.fetch_all_iter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.PaginateResource.fetch_page"><code class="docutils literal notranslate"><span class="pre">PaginateResource.fetch_page()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spb_curate.abstract.api.html#spb_curate.abstract.api.resource.PaginateResource.fetch_page_iter"><code class="docutils literal notranslate"><span class="pre">PaginateResource.fetch_page_iter()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spb_curate.abstract.api.html#module-spb_curate.abstract.api">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-spb_curate.abstract.superb_ai_object">
+<span id="spb-curate-abstract-superb-ai-object-module"></span><h2>spb_curate.abstract.superb_ai_object module<a class="headerlink" href="#module-spb_curate.abstract.superb_ai_object" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spb_curate.abstract.superb_ai_object.</span></span><span class="sig-name descname"><span class="pre">SuperbAIObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.ReprJSONEncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReprJSONEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.ReprJSONEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.ReprJSONEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONEncoder</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.ReprJSONEncoder.default">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.ReprJSONEncoder.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.ReprJSONEncoder.default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implement this method in a subclass such that it returns
+a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
+(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
+<p>For example, to support arbitrary iterators, you could
+implement default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="c1"># Let the base class default method raise the TypeError</span>
+    <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.api_base">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">api_base</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.api_base"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.api_base" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.construct_from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">construct_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.construct_from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.construct_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.get_cls_by_discriminator">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_cls_by_discriminator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.get_cls_by_discriminator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.get_cls_by_discriminator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.get_endpoint">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.get_endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.get_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.load_from_dict">
+<span class="sig-name descname"><span class="pre">load_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.load_from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.load_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.to_dict_deep">
+<span class="sig-name descname"><span class="pre">to_dict_deep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.to_dict_deep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.to_dict_deep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spb_curate.abstract.superb_ai_object.SuperbAIObject.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spb_curate/abstract/superb_ai_object.html#SuperbAIObject.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spb_curate.abstract.superb_ai_object.SuperbAIObject.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method inserts the specified items to the <code class="docutils literal notranslate"><span class="pre">SuperbAIObject</span></code>.
+Note: This method is a python <code class="docutils literal notranslate"><span class="pre">dict</span></code> function and does not make
+any Superb AI API calls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>update_dict</strong> – A dictionary or iterable object with key value pairs that will
+be inserted to the SuperbAIObject.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spb_curate.abstract">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spb_curate.abstract" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="spb_curate.abstract.api.html" class="btn btn-neutral float-right" title="spb_curate.abstract.api package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="spb_curate.html" class="btn btn-neutral float-left" title="spb_curate package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2023, Superb AI.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
