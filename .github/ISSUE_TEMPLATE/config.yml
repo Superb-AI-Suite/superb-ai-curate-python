@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Superb AI Documentation & Support
+    url: https://docs.superb-ai.com
+    about: |
+      If you are having issues using the Superb Curate Python SDK but they are not bug related, then please refer to the documentaion and/or contact Superb AI support.
