@@ -1,0 +1,42 @@
+# Ref. https://github.com/marketplace/actions/github-action-for-yarn
+# Ref. https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#environment-files
+
+name: A workflow for superb-ai-curate
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/*
+      - hotfix/*
+      - 1.*
+
+jobs:
+  build:
+    name: "superb-ai-curate ci test"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        poetry-version: ["1.2.2"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run poetry image
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+
+      - name: Install package dependency
+        run: poetry install -E dev
+
+      - name: Test superb-ai-curate
+        run: |
+          poetry run pytest --cov=spb_curate tests

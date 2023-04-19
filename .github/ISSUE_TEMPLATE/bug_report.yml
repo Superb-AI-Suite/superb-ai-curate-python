@@ -1,0 +1,64 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this bug report. Please redact any confidential details in all code examples and log outputs.
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: bug-reproduction
+    attributes:
+      label: How to reproduce the bug
+      description: The method to follow to reproduce the behavior.
+      placeholder: |
+        e.g.
+        1. Created X
+        2. Deleted Y
+        3. Unexpected behavior appears
+    validations:
+      required: true
+  - type: textarea
+    id: bug-logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: Shell
+  - type: textarea
+    id: code-snippet
+    attributes:
+      label: Code snippets
+      description: Include any code snippets that would help explain the bug.
+      render: python3
+  - type: input
+    id: language-version
+    attributes:
+      label: Language version
+      placeholder: Python 3.11.3
+    validations:
+      required: true
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK version
+      placeholder: superb-ai-curate v1.0.1
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additational context
+      description: If there is any additional information that is relevant to this report, please include it below.
