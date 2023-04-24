@@ -7,9 +7,6 @@ on:
   pull_request:
     branches:
       - main
-      - release/*
-      - hotfix/*
-      - feature/*
       - 1.*
 
 jobs:
