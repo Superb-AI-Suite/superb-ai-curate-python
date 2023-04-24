@@ -9,6 +9,7 @@ on:
       - main
       - release/*
       - hotfix/*
+      - feature/*
       - 1.*
 
 jobs:
