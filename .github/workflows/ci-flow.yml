@@ -12,7 +12,7 @@ on:
       - 1.*
 
 jobs:
-  build:
+  test:
     name: "superb-ai-curate ci test"
     runs-on: ubuntu-latest
 
@@ -40,3 +40,9 @@ jobs:
       - name: Test superb-ai-curate
         run: |
           poetry run pytest --cov=spb_curate tests
+      - name: Coverage Report
+        run: |
+          coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
