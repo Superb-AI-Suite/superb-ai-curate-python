@@ -43,7 +43,7 @@ jobs:
           poetry run pytest --cov=spb_curate tests
       - name: Coverage Report
         run: |
-          coveralls --service=github
+          poetry run coveralls --service=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
