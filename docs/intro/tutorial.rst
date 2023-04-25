@@ -27,7 +27,7 @@ By the end of this tutorial you will have created a dataset and added an image
     from spb_curate import curate
 
     dataset = curate.create_dataset(
-        name="My first dataset22",
+        name="My first dataset",
         description="For setting up the Superb AI Curate Python client"
     )
 
