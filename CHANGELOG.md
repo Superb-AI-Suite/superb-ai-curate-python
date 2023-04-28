@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Setup Coveralls badge in readme
+
 ## [1.0.0b1] - 2023-04-19
 
 Initial beta release of the Superb AI Curate Python client.
