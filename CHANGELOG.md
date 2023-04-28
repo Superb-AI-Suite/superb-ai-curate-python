@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Setup Coveralls badge in readme
 
+### Changed
+
+- Moved sphinx deployment from Github pages to Readthedocs (sc-1178)
+
 ## [1.0.0b1] - 2023-04-19
 
 Initial beta release of the Superb AI Curate Python client.
