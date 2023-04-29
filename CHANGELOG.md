@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Setup Coveralls badge in readme
+
 ### Changed
 
 - Moved sphinx deployment from Github pages to Readthedocs (sc-1178)
