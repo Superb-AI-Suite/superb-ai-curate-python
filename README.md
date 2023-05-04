@@ -6,7 +6,7 @@
 
 ## Overview
 
-`superb-ai-curate` is the Python client for interacting with [Superb AI Curate](https://superb-ai.com/).
+`superb-ai-curate` is the Python client for interacting with [Superb Curate](https://superb-ai.com/).
 
 ## Installation
 
