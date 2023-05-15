@@ -1,11 +1,12 @@
 # `superb-ai-curate`
 
+[![Coverage Status](https://coveralls.io/repos/github/Superb-AI-Suite/superb-ai-curate-python/badge.svg?branch=main)](https://coveralls.io/github/Superb-AI-Suite/superb-ai-curate-python?branch=main)
 [![Version](https://img.shields.io/pypi/v/superb-ai-curate)](https://pypi.org/project/superb-ai-curate/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Overview
 
-`superb-ai-curate` is the Python client for interacting with [Superb AI Curate](https://superb-ai.com/).
+`superb-ai-curate` is the Python client for interacting with [Superb Curate](https://superb-ai.com/).
 
 ## Installation
 
