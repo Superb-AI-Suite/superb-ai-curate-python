@@ -15,7 +15,7 @@ build:
     post_install:
       - poetry install -E docs
     pre_build:
-      - poetry run sphinx-apidoc -o source/ ../spb_curate -f
+      - poetry run sphinx-apidoc -o ./docs/source/ ./spb_curate/ -f
 
 sphinx:
    configuration: docs/conf.py
