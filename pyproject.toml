@@ -2,7 +2,7 @@
 [project]
 description = "The official Superb AI Curate client for Python"
 name = "superb-ai-curate"
-version = "1.0.0b1.post1"
+version = "1.0.0b1.post2"
 
 [[project.authors]]
 name = "Superb AI"
@@ -10,7 +10,7 @@ email = "support@superb-ai.com"
 
 [tool.poetry]
 name = "superb-ai-curate"
-version = "1.0.0b1.post1"
+version = "1.0.0b1.post2"
 license = "MIT"
 description = "The official Superb AI Curate client for Python"
 authors = ["Superb AI <support@superb-ai.com>"]
