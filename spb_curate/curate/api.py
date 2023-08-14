@@ -1739,9 +1739,6 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             The metadata associated with the image.
             Must be flat (one level deep).
         """
-        if not metadata:
-            metadata = {}
-
         super(Image, self).__init__(key=key, source=source, metadata=metadata, **params)
 
     def _init_volatile_fields(
