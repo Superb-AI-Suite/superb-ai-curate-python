@@ -251,20 +251,27 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
         -------
             The created job.
         """
-        data = {
-            "dataset_id": dataset_id,
-            "annotations": [],
-        }
+
+        raw_annotations = []
 
         # Ensure the annotation_values are converted to "raw" form
         for annotation in annotations:
-            data["annotations"].append(annotation.to_dict_deep())
+            raw_annotations.append(annotation.to_dict_deep())
+
+        uploaded_param = Job._upload_params(
+            access_key=access_key,
+            team_name=team_name,
+            data=raw_annotations,
+        )
 
         job = Job.create(
             access_key=access_key,
             team_name=team_name,
             job_type=JobType.ANNOTATION_IMPORT,
-            data=data,
+            param={
+                "dataset_id": dataset_id,
+                "annotations": {"param_id": uploaded_param["id"]}
+            },
         )
 
         if not asynchronous:
@@ -1352,7 +1359,7 @@ class Job(PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         job_type: JobType,
-        data: dict,
+        param: dict,
     ) -> Job:
         """
         Creates a job.
@@ -1361,8 +1368,8 @@ class Job(PaginateResource):
         ----------
         job_type
             The type of the job to create.
-        data
-            The payload for the job to process.
+        param
+            The parameters for the job.
             Differs by each ``JobType``.
         access_key
             An access key for request authentication.
@@ -1379,13 +1386,8 @@ class Job(PaginateResource):
         if not isinstance(job_type, JobType):
             raise error.ValidationError(f"Invalid job type {job_type}.")
 
-        # Upload params
-        upload_params_dict = cls._upload_params(
-            access_key=access_key, team_name=team_name, data=data
-        )
-
         # Submit the bulk job
-        bulk_params = {"job_type": job_type.value, "param_id": upload_params_dict["id"]}
+        bulk_params = {"job_type": job_type.value, "param": param}
         url = cls.get_endpoint(name="bulk_create", params=None)
 
         return Job._static_request(
@@ -1620,7 +1622,7 @@ class Job(PaginateResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        data: dict,
+        data: Union[dict, list],
     ) -> dict:
         # Upload params to S3 bucket
         params_data = json.dumps(data, cls=cls.ReprJSONEncoder).encode("UTF-8")
@@ -1889,11 +1891,18 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
                 access_key=access_key, team_name=team_name, images=local_images
             )
 
+        uploaded_param = Job._upload_params(
+            access_key=access_key, team_name=team_name, data=local_images+param_images
+        )
+
         job = Job.create(
             access_key=access_key,
             team_name=team_name,
             job_type=JobType.IMAGE_IMPORT,
-            data={"dataset_id": dataset_id, "images": param_images},
+            param={
+                "dataset_id": dataset_id,
+                "images": {"param_id": uploaded_param["id"]}
+            },
         )
 
         if not asynchronous:
@@ -2257,9 +2266,9 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        images: List[Image] = [],
-        image_ids: List[str] = [],
-        image_keys: List[str] = [],
+        images: Optional[List[Image]] = None,
+        image_ids: Optional[List[str]] = None,
+        image_keys: Optional[List[str]] = None,
         asynchronous: bool = True,
     ) -> Job:
         """
@@ -2289,22 +2298,37 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         -------
             The created job.
         """
-        for image in images:
-            image_ids.append(image.id)
+        images = [] if not images else images
+        image_ids = [] if not image_ids else image_ids
+        image_keys = [] if not image_keys else image_keys
 
-        data = {
-            "dataset_id": dataset_id,
-            "images": {
-                "ids": image_ids,
-                "keys": image_keys,
-            },
-        }
+        image_ids_and_keys = []
+
+        for image in images:
+            image_ids_and_keys.append({"id": image.id})
+
+        for image_id in image_ids:
+            image_ids_and_keys.append({"id": image_id})
+
+        for image_key in image_keys:
+            image_ids_and_keys.append({"key": image_key})
+
+        uploaded_param = Job._upload_params(
+            access_key=access_key,
+            team_name=team_name,
+            data=image_ids_and_keys,
+        )
 
         job = Job.create(
             access_key=access_key,
             team_name=team_name,
             job_type=JobType.DELETE_IMAGES,
-            data=data,
+            param={
+                "dataset_id": dataset_id,
+                "images": {
+                    "param_id": uploaded_param["id"],
+                },
+            },
         )
 
         if not asynchronous:
@@ -3050,38 +3074,52 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             )
 
         if query is not None:
-            data = {
-                "dataset_id": self.dataset_id,
-                "images": {
-                    "slice": None,
-                    "query": query,
-                },
-                "slices": {"add": [self.id], "remove": []},
-            }
             job = Job.create(
                 access_key=access_key,
                 team_name=team_name,
                 job_type=JobType.UPDATE_SLICE_BY_QUERY,
-                data=data,
+                param={
+                    "dataset_id": self.dataset_id,
+                    "images": {
+                        "slice": None,
+                        "query": query,
+                    },
+                    "slices": {"add": [self.id], "remove": []},
+                },
             )
         else:
             images = [] if not images else images
             image_ids = [] if not image_ids else image_ids
             image_keys = [] if not image_keys else image_keys
 
-            data = {
-                "dataset_id": self.dataset_id,
-                "images": {
-                    "ids": image_ids + [image.id for image in images],
-                    "keys": image_keys,
-                },
-                "slices": {"add": [self.id], "remove": []},
-            }
+            image_ids_and_keys = []
+
+            for image in images:
+                image_ids_and_keys.append({"id": image.id})
+
+            for image_id in image_ids:
+                image_ids_and_keys.append({"id": image_id})
+
+            for image_key in image_keys:
+                image_ids_and_keys.append({"key": image_key})
+
+            uploaded_param = Job._upload_params(
+                access_key=access_key,
+                team_name=team_name,
+                data=image_ids_and_keys,
+            )
+
             job = Job.create(
                 access_key=access_key,
                 team_name=team_name,
                 job_type=JobType.UPDATE_SLICE,
-                data=data,
+                param={
+                    "dataset_id": self.dataset_id,
+                    "images": {
+                        "param_id": uploaded_param["id"],
+                    },
+                    "slices": {"add": [self.id], "remove": []},
+                },
             )
 
         if not asynchronous:
@@ -3137,38 +3175,52 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             )
 
         if query is not None:
-            data = {
-                "dataset_id": self.dataset_id,
-                "images": {
-                    "slice": None,
-                    "query": query,
-                },
-                "slices": {"add": [], "remove": [self.id]},
-            }
             job = Job.create(
                 access_key=access_key,
                 team_name=team_name,
                 job_type=JobType.UPDATE_SLICE_BY_QUERY,
-                data=data,
+                param={
+                    "dataset_id": self.dataset_id,
+                    "images": {
+                        "slice": None,
+                        "query": query,
+                    },
+                    "slices": {"add": [], "remove": [self.id]},
+                },
             )
         else:
             images = [] if not images else images
             image_ids = [] if not image_ids else image_ids
             image_keys = [] if not image_keys else image_keys
 
-            data = {
-                "dataset_id": self.dataset_id,
-                "images": {
-                    "ids": image_ids + [image.id for image in images],
-                    "keys": image_keys,
-                },
-                "slices": {"add": [], "remove": [self.id]},
-            }
+            image_ids_and_keys = []
+
+            for image in images:
+                image_ids_and_keys.append({"id": image.id})
+
+            for image_id in image_ids:
+                image_ids_and_keys.append({"id": image_id})
+
+            for image_key in image_keys:
+                image_ids_and_keys.append({"key": image_key})
+
+            uploaded_param = Job._upload_params(
+                access_key=access_key,
+                team_name=team_name,
+                data=image_ids_and_keys,
+            )
+
             job = Job.create(
                 access_key=access_key,
                 team_name=team_name,
                 job_type=JobType.UPDATE_SLICE,
-                data=data,
+                param={
+                    "dataset_id": self.dataset_id,
+                    "images": {
+                        "param_id": uploaded_param["id"]
+                    },
+                    "slices": {"add": [], "remove": [self.id]},
+                },
             )
 
         if not asynchronous:
