@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `Read the Docs`` links to the README
+
 ### Changed
 
 - Fix the Readthedocs build (sc-1178)
@@ -21,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Setup Coveralls badge in readme
-- Added `Read the Docs`` links to the README
 
 ### Changed
 
