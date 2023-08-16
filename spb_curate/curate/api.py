@@ -8,15 +8,25 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
 
 import requests
+
 from spb_curate import api_requestor, error, util
-from spb_curate.abstract.api.resource import (CreateResource, DeleteResource,
-                                              ModifyResource, PaginateResource)
+from spb_curate.abstract.api.resource import (
+    CreateResource,
+    DeleteResource,
+    ModifyResource,
+    PaginateResource,
+)
 from spb_curate.abstract.superb_ai_object import SuperbAIObject
-from spb_curate.curate.model.annotation_types import (AnnotationType,
-                                                      BoundingBox, Category,
-                                                      Cuboid2D, Keypoints,
-                                                      Polygon, Polyline,
-                                                      RotatedBox)
+from spb_curate.curate.model.annotation_types import (
+    AnnotationType,
+    BoundingBox,
+    Category,
+    Cuboid2D,
+    Keypoints,
+    Polygon,
+    Polyline,
+    RotatedBox,
+)
 
 FETCH_PAGE_LIMIT = 100
 UPLOAD_IMAGE_FILE_BYTES_MAX = 20000000  # 20MB
