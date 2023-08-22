@@ -20,6 +20,14 @@ $ pip install --upgrade superb-ai-curate
 
 Python 3.7+
 
+## Documentation
+
+You can also find the documentation for `superb-ai-curate` [on the website](https://superb-ai-curate-python.readthedocs.io/en/latest/).
+
+* [Introduction](https://superb-ai-curate-python.readthedocs.io/en/latest/intro/overview.html)
+* [Installation](https://superb-ai-curate-python.readthedocs.io/en/latest/intro/install.html)
+* [Tutorial](https://superb-ai-curate-python.readthedocs.io/en/latest/intro/tutorial.html)
+
 ## Usage
 
 An Access Key is required to use the python client. This can be generated from the Settings > Access menu on the Superb AI Curate website. For more details on access key issuance and management, you can check the [Access Key Management](https://docs.superb-ai.com/reference/access-key-management) documentation. The Team Name refers to the organization name that your personal account belongs to.
