@@ -408,7 +408,6 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
             team_name=team_name,
             endpoint_params=endpoint_params,
             params=params,
-            method="put",
         )
 
 
@@ -419,6 +418,9 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         "fetch": "/curate/dataset-query/datasets/{id}/",
         "paginate": "/curate/dataset-query/datasets/",
         "modify": "/curate/dataset-core/datasets/{id}",
+    }
+    _endpoints_method = {
+        "modify": "patch",
     }
     _object_type = "dataset"
 
@@ -867,7 +869,6 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             team_name=team_name,
             endpoint_params=endpoint_params,
             params=params,
-            method="patch",
         )
 
     def add_images(
@@ -1714,8 +1715,11 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         "bulk_asset_upload": "/curate/batch/assets/bulk/",
         "delete": "/curate/dataset-core/datasets/{dataset_id}/images/{id}/",
         "fetch": "/curate/dataset-query/datasets/{dataset_id}/images/{id}/",
-        "paginate": "/curate/dataset-query/datasets/{dataset_id}/images/",
+        "paginate": "/curate/dataset-query/datasets/{dataset_id}/images/_search",
         "modify": "/curate/dataset-core/datasets/{dataset_id}/images/{id}/metadata",
+    }
+    _endpoints_method = {
+        "paginate": "post",
     }
     _object_type = "image"
 
@@ -2400,7 +2404,6 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             team_name=team_name,
             endpoint_params=endpoint_params,
             params=params,
-            method="put",
         )
 
 
@@ -2629,6 +2632,9 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         "fetch": "/curate/dataset-query/datasets/{dataset_id}/slices/{id}/",
         "paginate": "/curate/dataset-query/datasets/{dataset_id}/slices/",
         "modify": "/curate/dataset-core/datasets/{dataset_id}/slices/{id}/",
+    }
+    _endpoints_method = {
+        "modify": "patch",
     }
     _object_type = "slice"
 
@@ -3426,7 +3432,6 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             team_name=team_name,
             endpoint_params=endpoint_params,
             params=params,
-            method="patch",
         )
 
 
