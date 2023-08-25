@@ -15,3 +15,14 @@ class TestSuperbAIObject(object):
 
         with pytest.raises(error.ValidationError):
             SuperbAIObject.get_endpoint(name="sample", params={"id": None})
+
+    def test_get_endpoint_method(self):
+        SuperbAIObject._endpoints_method = {"sample-1": "post"}
+        method = SuperbAIObject.get_endpoint_method(name="sample-1", default="get")
+        assert method == "post"
+
+        method = SuperbAIObject.get_endpoint_method(name="sample-2", default="get")
+        assert method == "get"
+
+        with pytest.raises(error.ValidationError):
+            SuperbAIObject.get_endpoint_method(name="sample-2")

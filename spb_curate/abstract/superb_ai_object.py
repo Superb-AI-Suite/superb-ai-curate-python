@@ -17,6 +17,7 @@ class SuperbAIObject(dict):
 
     _discriminator_map = {}
     _endpoints: Dict[str, str] = {}
+    _endpoints_method: Dict[str, str] = {}
     _field_class_map = {}
     _field_initializers = {}
     _object_type: str = ""
@@ -71,6 +72,15 @@ class SuperbAIObject(dict):
             url = url.format(**params)
 
         return url
+
+    @classmethod
+    def get_endpoint_method(cls, *, name: str, default: Optional[str] = None) -> str:
+        if default is None and name not in cls._endpoints_method:
+            raise error.ValidationError(
+                f"The '{name}' endpoint http method is missing."
+            )
+
+        return cls._endpoints_method.get(name, default)
 
     def request(
         self,
