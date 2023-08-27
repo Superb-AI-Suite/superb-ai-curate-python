@@ -50,9 +50,10 @@ class APIResource(SuperbAIObject):
             When `endpoint_params` contains `None` or empty strings.
         """
         url = cls.get_endpoint(name="fetch", params=endpoint_params)
+        method = cls.get_endpoint_method(name="fetch", default="get")
 
         return cls._static_request(
-            method_="get",
+            method_=method,
             url_=url,
             access_key=access_key,
             team_name=team_name,
@@ -70,9 +71,10 @@ class APIResource(SuperbAIObject):
         params: Optional[dict] = None,
     ) -> None:
         url = self.get_endpoint(name="fetch", params=endpoint_params)
+        method = self.get_endpoint_method(name="fetch", default="get")
 
         refreshed_object = self._static_request(
-            method_="get",
+            method_=method,
             url_=url,
             access_key=access_key,
             team_name=team_name,
@@ -105,9 +107,10 @@ class CreateResource(APIResource):
             When `endpoint_params` contains `None` or empty strings.
         """
         url = cls.get_endpoint(name="create", params=endpoint_params)
+        method = cls.get_endpoint_method(name="create", default="post")
 
         return cls._static_request(
-            method_="post",
+            method_=method,
             url_=url,
             access_key=access_key,
             team_name=team_name,
@@ -133,9 +136,10 @@ class DeleteResource(APIResource):
             When `endpoint_params` contains `None` or empty strings.
         """
         url = cls.get_endpoint(name="delete", params=endpoint_params)
+        method = cls.get_endpoint_method(name="delete", default="delete")
 
         return cls._static_request(
-            method_="delete",
+            method_=method,
             url_=url,
             access_key=access_key,
             team_name=team_name,
@@ -186,6 +190,7 @@ class PaginateResource(APIResource):
             When `endpoint_params` contains `None` or empty strings.
         """
         url = cls.get_endpoint(name="paginate", params=endpoint_params)
+        method = cls.get_endpoint_method(name="paginate", default="get")
         get_params = params.copy() if params else {}
 
         requestor = api_requestor.APIRequestor(
@@ -193,7 +198,7 @@ class PaginateResource(APIResource):
         )
 
         response, access_key = requestor.request(
-            method="get", url=url, params=get_params, headers=headers
+            method=method, url=url, params=get_params, headers=headers
         )
 
         response_data = response.data
@@ -245,12 +250,13 @@ class PaginateResource(APIResource):
             When `endpoint_params` contains `None` or empty strings.
         """
         url = cls.get_endpoint(name="paginate", params=endpoint_params)
+        method = cls.get_endpoint_method(name="paginate", default="get")
         requestor = api_requestor.APIRequestor(
             access_key=access_key, team_name=team_name
         )
 
         response, access_key = requestor.request(
-            method="get", url=url, params=params, headers=headers
+            method=method, url=url, params=params, headers=headers
         )
 
         response_data = response.data
@@ -293,7 +299,6 @@ class ModifyResource(APIResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         endpoint_params: Optional[dict] = None,
-        method: Optional[str] = None,
         headers: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> SuperbAIObject:
@@ -303,14 +308,8 @@ class ModifyResource(APIResource):
         ValidationError
             When `endpoint_params` contains `None` or empty strings.
         """
-        method = "put" if method is None else method
-
-        if method not in ["put", "patch"]:
-            raise error.ValidationError(
-                "Modify can only be used with 'put' or 'patch'."
-            )
-
         url = cls.get_endpoint(name="modify", params=endpoint_params)
+        method = cls.get_endpoint_method(name="modify", default="put")
 
         return cls._static_request(
             method_=method,
@@ -327,7 +326,6 @@ class ModifyResource(APIResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         endpoint_params: Optional[dict] = None,
-        method: Optional[str] = None,
         headers: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> SuperbAIObject:
@@ -341,7 +339,6 @@ class ModifyResource(APIResource):
             access_key=access_key,
             team_name=team_name,
             endpoint_params=endpoint_params,
-            method=method,
             headers=headers,
             params=params,
         )
