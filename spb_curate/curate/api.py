@@ -2795,9 +2795,10 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         )
 
 
-class _Model(ModifyResource):
+class _Model(PaginateResource, ModifyResource):
     _endpoints = {
         "modify": "/curate/model-diagnosis/models/{id}/",
+        "paginate": "/curate/model-diagnosis/models/",
     }
     _endpoints_method = {
         "modify": "patch",
@@ -2810,8 +2811,241 @@ class _Model(ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
     ) -> _Model:
-        raise NotImplementedError
+        """
+        Fetches a model.
+
+        Parameters
+        ----------
+        id
+            The ID of the model to fetch.
+            Must provide at least one of ``id`` or ``name``.
+        name
+            The name of the model.
+            Must provide at least one of ``id`` or ``name``.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The fetched model.
+        """
+        if id is None and name is None:
+            raise error.ValidationError("Must provide at least one of id or name.")
+        elif id is not None and name is not None:
+            raise error.ValidationError("Must provide only one of id or name.")
+
+        exact = {}
+
+        if id:
+            exact.update({"id": id})
+
+        if name:
+            exact.update({"name": name})
+
+        try:
+            return cls.fetch_all(
+                access_key=access_key,
+                team_name=team_name,
+                exact=exact,
+            )[0]
+        except IndexError:
+            # TODO: Fix error message
+            raise error.NotFoundError("Could not find the model.") from None
+
+    @classmethod
+    def fetch_all(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        exact: Dict[str, Any] = None,
+    ) -> List[_Model]:
+        """
+        Fetches models that match the provided filters.
+        If filters are not provided, fetches all models.
+
+        Parameters
+        ----------
+        exact
+            A dictionary for exact, case-sensitive filtering.
+            Must provide field names as keys and their desired values.
+            Supported fields: ``name``.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            Matching models.
+        """
+        all_models = []
+        for page in cls.fetch_page_iter(
+            access_key=access_key,
+            team_name=team_name,
+            exact=exact,
+        ):
+            all_models.extend(page.get("results", []))
+        return all_models
+
+    @classmethod
+    def fetch_all_iter(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        exact: Dict[str, Any] = None,
+    ) -> Iterator[_Model]:
+        """
+        Iterates through models that match the provided filters.
+        If filters are not provided, iterates through all models.
+
+        Parameters
+        ----------
+        exact
+            A dictionary for exact, case-sensitive filtering.
+            Must provide field names as keys and their desired values.
+            Supported fields: ``name``.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The matching model iterator.
+
+        Yields
+        -------
+            The next matching models.
+        """
+        for fetch_result in _Model.fetch_page_iter(
+            access_key=access_key,
+            team_name=team_name,
+            exact=exact,
+        ):
+            for model in fetch_result.get("results", []):
+                yield model
+
+    @classmethod
+    def fetch_page(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        exact: Dict[str, Any] = None,
+        page: int = 1,
+        limit: int = 10,
+    ) -> Dict[str, Union[int, List[_Model]]]:
+        """
+        Fetches a page of models that match the provided filters.
+        If filters are not provided, paginates all models.
+
+        Parameters
+        ----------
+        exact
+            A dictionary for exact, case-sensitive filtering.
+            Must provide field names as keys and their desired values.
+            Supported fields: ``name``.
+        page
+            The page number.
+        limit
+            The maximum number of diagnoses in a page.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            A page of matching diagnoses.
+        """
+        params = {"size": limit}
+
+        if exact:
+            for field, filter in [
+                ("name", "name"),
+            ]:
+                params.update({filter: exact.get(field)})
+
+        if page:
+            params["page"] = page
+
+        return super(_Model, cls).fetch_page(
+            access_key=access_key,
+            team_name=team_name,
+            headers=None,
+            params=params,
+        )
+
+    @classmethod
+    def fetch_page_iter(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        exact: Dict[str, Any] = None,
+    ) -> Iterator[Dict[str, Union[int, List[_Model]]]]:
+        """
+        Iterates through pages of models that match the provided filters.
+        If filters are not provided, paginates all models.
+
+        Parameters
+        ----------
+        exact
+            A dictionary for exact, case-sensitive filtering.
+            Must provide field names as keys and their desired values.
+            Supported fields: ``name``.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The matching model page iterator.
+
+        Yields
+        -------
+            The next page of matching models.
+        """
+
+        page = 1
+        page_result = {}
+        limit = FETCH_PAGE_LIMIT
+
+        def fetch_result(page: int):
+            page_result = cls.fetch_page(
+                access_key=access_key,
+                team_name=team_name,
+                exact=exact,
+                page=page,
+                limit=limit,
+            )
+            return page_result
+
+        page_result = fetch_result(page=page)
+        yield page_result
+
+        while page * limit < page_result["count"]:
+            page += 1
+            page_result = fetch_result(page=page)
+            yield page_result
 
     def modify(
         self,
@@ -3916,6 +4150,17 @@ def create_dataset(
         name=name,
         description=description,
     )
+
+
+def fetch_available_models(
+    *,
+    access_key: Optional[str] = None,
+    team_name: Optional[str] = None,
+) -> Dict[str, str]:
+    return [
+        model.to_dict_deep()
+        for model in _Model.fetch_all(access_key=access_key, team_name=team_name)
+    ]
 
 
 def fetch_dataset(
