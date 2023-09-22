@@ -1217,11 +1217,15 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         )
 
 
-class Diagnosis(CreateResource, PaginateResource):
+class Diagnosis(CreateResource, ModifyResource, PaginateResource):
     _endpoints = {
         "create": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/",
         "fetch": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/{id}/",
-        "paginate": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/_search",
+        "modify": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/{id}/",
+        "paginate": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/_search/",
+    }
+    _endpoints_method = {
+        "modify": "patch",
     }
     _object_type = "diagnosis"
 
@@ -1538,6 +1542,41 @@ class Diagnosis(CreateResource, PaginateResource):
             page += 1
             page_result = fetch_result(page=page)
             yield page_result
+
+    def modify(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        metadata: Optional[dict] = None,
+    ) -> None:
+        """
+        Modifies the diagnosis.
+
+        Parameters
+        ----------
+        metadata
+            The metadata associated with the diagnosis.
+            Must be flat (one level deep).
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+        """
+        if metadata is None:
+            return
+
+        endpoint_params = {"id": self.id}
+        params = {"metadata": metadata}
+
+        super(Diagnosis, self).modify(
+            access_key=access_key,
+            team_name=team_name,
+            endpoint_params=endpoint_params,
+            params=params,
+        )
 
     def refresh(
         self,
