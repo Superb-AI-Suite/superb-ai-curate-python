@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import decimal
 import json
 import re
 import time
@@ -81,7 +82,7 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
     ):
         """
         Initializes an annotation.
-        A newly initialized annotation is incomplete must be added to a dataset.
+        A newly initialized annotation is incomplete and must be added to a dataset.
 
         Parameters
         ----------
@@ -3084,6 +3085,52 @@ class _Model(PaginateResource, ModifyResource):
             team_name=team_name,
             endpoint_params=endpoint_params,
             params=params,
+        )
+
+
+class Prediction(SuperbAIObject):
+    def __init__(
+        self,
+        *,
+        prediction_class: str,
+        prediction_confidence: Union[int, float, decimal.Decimal],
+        prediction_type: Optional[str] = None,
+        prediction_value: Union[
+            BoundingBox,
+            Category,
+            Cuboid2D,
+            Keypoints,
+            Polygon,
+            Polyline,
+            RotatedBox,
+            dict,
+            list,
+        ],
+        **params,
+    ):
+        """
+        Initializes a prediction.
+        A newly initialized prediction is incomplete and must be added to an evaluation.
+
+        Parameters
+        ----------
+        prediction_class
+            The classification of the prediction (e.g. "person", "vehicle").
+        prediction_type
+            The type of the prediction (e.g. "box", "polygon").
+            Will be inferred if ``prediction_value`` is an instance of ``AnnotationType``.
+        prediction_value
+            The value of the prediction.
+        """
+
+        super(Prediction, self).__init__(
+            prediction_class=prediction_class,
+            prediction_confidence=prediction_confidence,
+            prediction_type=prediction_type._object_type
+            if isinstance(prediction_type, AnnotationType)
+            else prediction_type,
+            prediction_value=prediction_value,
+            **params,
         )
 
 
