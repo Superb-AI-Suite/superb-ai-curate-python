@@ -1539,6 +1539,32 @@ class Diagnosis(CreateResource, PaginateResource):
             page_result = fetch_result(page=page)
             yield page_result
 
+    def refresh(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+    ) -> None:
+        """
+        Refreshes the diagnosis.
+
+        Parameters
+        ----------
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+        """
+        endpoint_params = {"id": self.id}
+
+        super(Diagnosis, self).refresh(
+            access_key=access_key,
+            team_name=team_name,
+            endpoint_params=endpoint_params,
+        )
+
 
 class BaseImageSource(SuperbAIObject):
     def __init__(
