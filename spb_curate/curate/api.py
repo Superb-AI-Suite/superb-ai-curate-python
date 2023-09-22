@@ -2795,6 +2795,64 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         )
 
 
+class _Model(ModifyResource):
+    _endpoints = {
+        "modify": "/curate/model-diagnosis/models/{id}/",
+    }
+    _endpoints_method = {
+        "modify": "patch",
+    }
+    _object_type = "model"
+
+    @classmethod
+    def fetch(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+    ) -> _Model:
+        raise NotImplementedError
+
+    def modify(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        """
+        Modifies the model.
+
+        Parameters
+        ----------
+        name
+            The new name for the model.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Raises
+        ------
+        ConflictError
+            When a model with the provided name already exists.
+        """
+        if name is None:
+            return
+
+        endpoint_params = {"id": self.id}
+        params = {"name": name}
+
+        super(_Model, self).modify(
+            access_key=access_key,
+            team_name=team_name,
+            endpoint_params=endpoint_params,
+            params=params,
+        )
+
+
 class SearchFieldMapping(PaginateResource):
     _endpoints = {
         "paginate": "/curate/dataset-query/datasets/{dataset_id}/search-field-mappings",
@@ -2807,9 +2865,6 @@ class SearchFieldMapping(PaginateResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        endpoint_params: Optional[dict] = None,
-        headers: Optional[dict] = None,
-        params: Optional[dict] = None,
     ) -> SearchFieldMapping:
         """
         Not implemented.
@@ -3936,11 +3991,11 @@ def fetch_datasets(
     include_slice_count
         Whether to include the count of slices in the fetched datasets.
     access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
+        An access key for request authentication.
+        If provided, overrides the configuration.
+    team_name
+        A team name for request authentication.
+        If provided, overrides the configuration.
 
     Returns
     -------
@@ -3954,4 +4009,39 @@ def fetch_datasets(
         contains=contains,
         include_image_count=include_image_count,
         include_slice_count=include_slice_count,
+    )
+
+
+def modify_model_name(
+    *,
+    access_key: Optional[str] = None,
+    team_name: Optional[str] = None,
+    id: str,
+    name: str,
+):
+    """
+    Modifies the model.
+
+    Parameters
+    ----------
+    id
+        The id of the model to modify.
+    name
+        The new name for the model.
+    access_key
+        An access key for request authentication.
+        If provided, overrides the configuration.
+    team_name
+        A team name for request authentication.
+        If provided, overrides the configuration.
+
+    Raises
+    ------
+    ConflictError
+        When a model with the provided name already exists.
+    """
+    _Model(id=id).modify(
+        access_key=access_key,
+        team_name=team_name,
+        name=name,
     )
