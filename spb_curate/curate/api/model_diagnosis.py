@@ -3,7 +3,7 @@ from __future__ import annotations
 import decimal
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from spb_curate import error
+from spb_curate import error, util
 from spb_curate.abstract.api.resource import (
     CreateResource,
     ModifyResource,
@@ -704,12 +704,27 @@ class _Model(PaginateResource, ModifyResource):
 
 
 class Prediction(SuperbAIObject):
+    _discriminator_map = {
+        "prediction_value": (
+            "prediction_type",
+            {
+                "box": BoundingBox,
+                "category": Category,
+                "cuboid2d": Cuboid2D,
+                "keypoint": Keypoints,
+                "polygon": Polygon,
+                "polyline": Polyline,
+                "rbox": RotatedBox,
+            },
+        )
+    }
+    _field_initializers = {"prediction_value": "_init_prediction_value"}
+
     def __init__(
         self,
         *,
         prediction_class: str,
         prediction_confidence: Union[int, float, decimal.Decimal],
-        prediction_type: Optional[str] = None,
         prediction_value: Union[
             BoundingBox,
             Category,
@@ -721,6 +736,7 @@ class Prediction(SuperbAIObject):
             dict,
             list,
         ],
+        prediction_type: Optional[str] = None,
         **params,
     ):
         """
@@ -731,22 +747,93 @@ class Prediction(SuperbAIObject):
         ----------
         prediction_class
             The classification of the prediction (e.g. "person", "vehicle").
+        prediction_value
+            The value of the prediction.
         prediction_type
             The type of the prediction (e.g. "box", "polygon").
             Will be inferred if ``prediction_value`` is an instance of ``AnnotationType``.
-        prediction_value
-            The value of the prediction.
         """
 
         super(Prediction, self).__init__(
             prediction_class=prediction_class,
             prediction_confidence=prediction_confidence,
-            prediction_type=prediction_type._object_type
-            if isinstance(prediction_type, AnnotationType)
-            else prediction_type,
             prediction_value=prediction_value,
+            prediction_type=prediction_value._object_type
+            if isinstance(prediction_value, AnnotationType)
+            else prediction_type,
             **params,
         )
+
+    def _init_volatile_fields(
+        self,
+        prediction_class: str,
+        prediction_confidence: Union[int, float, decimal.Decimal],
+        prediction_value: Union[
+            BoundingBox,
+            Category,
+            Cuboid2D,
+            Keypoints,
+            Polygon,
+            Polyline,
+            RotatedBox,
+            dict,
+            list,
+        ],
+        prediction_type: Optional[str] = None,
+        **params,
+    ) -> None:
+        super(Prediction, self)._init_volatile_fields(
+            prediction_class=prediction_class,
+            prediction_confidence=prediction_confidence,
+            prediction_value=prediction_value,
+            prediction_type=prediction_type,
+            **params,
+        )
+
+        for k, v, is_required in iter(
+            [
+                ("prediction_class", prediction_class, True),
+                ("prediction_confidence", prediction_confidence, True),
+                ("prediction_type", prediction_type, True),
+                ("prediction_value", prediction_value, True),
+            ]
+        ):
+            if isinstance(k, list):
+                util.validate_argument_list(keys=k, values=v, is_required=is_required)
+                for paired_i in range(len(k)):
+                    self[k[paired_i]] = util.convert_to_superb_ai_object(
+                        data=v[paired_i]
+                    )
+            else:
+                util.validate_argument_value(key=k, value=v, is_required=is_required)
+                self[k] = util.convert_to_superb_ai_object(data=v)
+
+        if not prediction_type:
+            raise error.ValidationError("prediction_type is required")
+
+        if isinstance(prediction_value, (dict, list)) and not isinstance(
+            prediction_value, AnnotationType
+        ):
+            self._init_prediction_value(prediction_type, prediction_value)
+
+    def _init_prediction_value(
+        self,
+        prediction_type: str,
+        prediction_value: Union[
+            BoundingBox,
+            Category,
+            Cuboid2D,
+            Keypoints,
+            Polygon,
+            Polyline,
+            RotatedBox,
+        ],
+        **params,
+    ):
+        prediction_type_cls = self.get_cls_by_discriminator(
+            field="prediction_value", data={"prediction_type": prediction_type}
+        )
+        self.prediction_value = prediction_type_cls(raw_data=prediction_value)
 
 
 def fetch_available_models(
