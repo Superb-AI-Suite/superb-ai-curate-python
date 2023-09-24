@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import decimal
 import json
 import re
 import time
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
 
@@ -17,7 +15,9 @@ from spb_curate.abstract.api.resource import (
     ModifyResource,
     PaginateResource,
 )
-from spb_curate.abstract.superb_ai_object import SuperbAIObject
+from spb_curate.curate.api import settings
+from spb_curate.curate.api.abstract import BaseImageSource
+from spb_curate.curate.api.enums import JobType, SearchFieldMappingType
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
     BoundingBox,
@@ -28,9 +28,6 @@ from spb_curate.curate.model.annotation_types import (
     Polyline,
     RotatedBox,
 )
-
-FETCH_PAGE_LIMIT = 100
-UPLOAD_IMAGE_FILE_BYTES_MAX = 20000000  # 20MB
 
 
 class Annotation(CreateResource, DeleteResource, ModifyResource):
@@ -159,7 +156,9 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
             if isinstance(k, list):
                 util.validate_argument_list(keys=k, values=v, is_required=is_required)
                 for paired_i in range(len(k)):
-                    self[k[paired_i]] = util.convert_to_superb_ai_object(data=v[paired_i])
+                    self[k[paired_i]] = util.convert_to_superb_ai_object(
+                        data=v[paired_i]
+                    )
             else:
                 util.validate_argument_value(key=k, value=v, is_required=is_required)
                 self[k] = util.convert_to_superb_ai_object(data=v)
@@ -271,7 +270,7 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
             job_type=JobType.ANNOTATION_IMPORT,
             param={
                 "dataset_id": dataset_id,
-                "annotations": {"param_id": uploaded_param["id"]}
+                "annotations": {"param_id": uploaded_param["id"]},
             },
         )
 
@@ -727,7 +726,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
 
         page = 1
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
         def fetch_result(page: int):
             page_result = cls.fetch_page(
@@ -1218,887 +1217,6 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         )
 
 
-class Diagnosis(CreateResource, ModifyResource, PaginateResource):
-    _endpoints = {
-        "create": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/",
-        "fetch": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/{id}/",
-        "modify": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/{id}/",
-        "paginate": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/_search/",
-    }
-    _endpoints_method = {
-        "modify": "patch",
-    }
-    _object_type = "diagnosis"
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        model_name: str,
-    ) -> Diagnosis:
-        """
-        Creates a diagnosis.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to use for the diagnosis.
-        model_name
-            The name of the model to diagnose.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The created diagnosis.
-
-        Raises
-        ------
-        ConflictError
-            When a diagnosis related to the dataset and model already exists.
-        """
-        endpoint_params = {"dataset_id": dataset_id}
-        params = {
-            "model_name": model_name,
-            "model_source": "external",
-        }
-
-        return super(Diagnosis, cls).create(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-            headers=None,
-            params=params,
-        )
-
-    @classmethod
-    def fetch(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        id: Optional[str] = None,
-        model_name: Optional[str] = None,
-    ) -> Diagnosis:
-        """
-        Fetches a diagnosis.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to fetch the diagnosis from.
-        id
-            The ID of the diagnosis to fetch.
-            Must provide at least one of ``id`` or ``model_name``.
-        model_name
-            The name of the model associated with the dataset's diagnosis.
-            Must provide at least one of ``id`` or ``model_name``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The fetched diagnosis.
-        """
-        if id is None and model_name is None:
-            raise error.ValidationError(
-                "Must provide at least one of id or model_name."
-            )
-        elif id is not None and model_name is not None:
-            raise error.ValidationError("Must provide only one of id or model_name.")
-
-        if model_name:
-            try:
-                return cls.fetch_all(
-                    access_key=access_key,
-                    team_name=team_name,
-                    dataset_id=dataset_id,
-                    exact={"model_name": model_name},
-                )[0]
-            except IndexError:
-                # TODO: Fix error message
-                raise error.NotFoundError("Could not find the diagnosis.") from None
-
-        endpoint_params = {"dataset_id": dataset_id, "id": id}
-
-        return super(Diagnosis, cls).fetch(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-        )
-
-    @classmethod
-    def fetch_all(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        exact: Dict[str, Any] = None,
-    ) -> List[Diagnosis]:
-        """
-        Fetches diagnoses that match the provided filters.
-        If filters are not provided, fetches all diagnoses.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            Matching diagnoses.
-        """
-        all_diagnoses = []
-        for page in cls.fetch_page_iter(
-            access_key=access_key,
-            team_name=team_name,
-            dataset_id=dataset_id,
-            exact=exact,
-        ):
-            all_diagnoses.extend(page.get("results", []))
-        return all_diagnoses
-
-    @classmethod
-    def fetch_all_iter(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        exact: Dict[str, Any] = None,
-    ) -> Iterator[Diagnosis]:
-        """
-        Iterates through diagnoses that match the provided filters.
-        If filters are not provided, iterates through all diagnoses.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The matching diagnosis iterator.
-
-        Yields
-        -------
-            The next matching diagnosis.
-        """
-        for fetch_result in Diagnosis.fetch_page_iter(
-            access_key=access_key,
-            team_name=team_name,
-            dataset_id=dataset_id,
-            exact=exact,
-        ):
-            for diagnosis in fetch_result.get("results", []):
-                yield diagnosis
-
-    @classmethod
-    def fetch_page(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        exact: Dict[str, Any] = None,
-        page: int = 1,
-        limit: int = 10,
-    ) -> Dict[str, Union[int, List[Diagnosis]]]:
-        """
-        Fetches a page of diagnoses that match the provided filters.
-        If filters are not provided, paginates all diagnoses.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
-        page
-            The page number.
-        limit
-            The maximum number of diagnoses in a page.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            A page of matching diagnoses.
-        """
-        endpoint_params = {"dataset_id": dataset_id}
-        params = {"size": limit}
-
-        if exact:
-            for field, filter in [
-                ("model_name", "model_name"),
-            ]:
-                params.update({filter: exact.get(field)})
-
-        if page:
-            params["page"] = page
-
-        return super(Diagnosis, cls).fetch_page(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-            headers=None,
-            params=params,
-        )
-
-    @classmethod
-    def fetch_page_iter(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        exact: Dict[str, Any] = None,
-    ) -> Iterator[Dict[str, Union[int, List[Diagnosis]]]]:
-        """
-        Iterates through pages of diagnoses that match the provided filters.
-        If filters are not provided, paginates all diagnoses.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The matching diagnosis page iterator.
-
-        Yields
-        -------
-            The next page of matching diagnoses.
-        """
-
-        page = 1
-        page_result = {}
-        limit = FETCH_PAGE_LIMIT
-
-        def fetch_result(page: int):
-            page_result = cls.fetch_page(
-                access_key=access_key,
-                team_name=team_name,
-                dataset_id=dataset_id,
-                exact=exact,
-                page=page,
-                limit=limit,
-            )
-            return page_result
-
-        page_result = fetch_result(page=page)
-        yield page_result
-
-        while page * limit < page_result["count"]:
-            page += 1
-            page_result = fetch_result(page=page)
-            yield page_result
-
-    def modify(
-        self,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        metadata: Optional[dict] = None,
-    ) -> None:
-        """
-        Modifies the diagnosis.
-
-        Parameters
-        ----------
-        metadata
-            The metadata associated with the diagnosis.
-            Must be flat (one level deep).
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-        """
-        if metadata is None:
-            return
-
-        endpoint_params = {"id": self.id}
-        params = {"metadata": metadata}
-
-        super(Diagnosis, self).modify(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-            params=params,
-        )
-
-    def refresh(
-        self,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-    ) -> None:
-        """
-        Refreshes the diagnosis.
-
-        Parameters
-        ----------
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-        """
-        endpoint_params = {"id": self.id}
-
-        super(Diagnosis, self).refresh(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-        )
-
-
-class BaseImageSource(SuperbAIObject):
-    def __init__(
-        self,
-        *,
-        type: str,
-        **params,
-    ):
-        super(BaseImageSource, self).__init__(type=type, **params)
-
-        for k, v in iter([("type", type)]):
-            self[k] = util.convert_to_superb_ai_object(data=v)
-
-
-class ImageSourceLocal(BaseImageSource):
-    def __init__(
-        self,
-        *,
-        asset: Union[bytes, str, Path],
-        asset_id: Optional[str] = None,
-        **params,
-    ):
-        """
-        Initializes a local image source.
-
-        Parameters
-        ----------
-        asset
-            The data of the image.
-            Supports byte array, string path, ``Path``object of the image.
-        asset_id
-            The ID of the asset.
-            Should not be explicitly provided.
-        """
-        super(ImageSourceLocal, self).__init__(type="LOCAL", params=params)
-
-        if asset:
-            if isinstance(asset, str) or isinstance(asset, Path):
-                self._asset_path = asset
-            else:
-                self.__set_asset(asset=asset)
-
-            self._upload_url = None
-        else:
-            self.asset_id = asset_id
-
-    def __set_asset(self, *, asset: bytes):
-        self._asset = asset
-        self._asset_size = len(asset)
-
-    def get_asset(self) -> bytes:
-        self.load_asset()
-
-        return getattr(self, "_asset")
-
-    def load_asset(self) -> bytes:
-        if not hasattr(self, "_asset"):
-            if hasattr(self, "_asset_path"):
-                with open(self._asset_path, "rb") as fp:
-                    self.__set_asset(asset=fp.read())
-            else:
-                raise error.ValidationError(
-                    "Local image file path or bytes not supplied."
-                )
-
-        return self._asset
-
-    def unload_asset(self, *, force: bool = True):
-        if hasattr(self, "_asset") and force:
-            delattr(self, "_asset")
-
-    def get_asset_size(self) -> int:
-        if not hasattr(self, "_asset_size"):
-            self.load_asset()
-
-        return self._asset_size
-
-
-class ImageSourceUrl(BaseImageSource):
-    __validator_message = "The URL is invalid: {value}"
-    __validator_regex = re.compile(
-        r"^(?:http|ftp)s?://"  # http:// or https://
-        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
-        r"localhost|"  # localhost...
-        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
-        r"(?::\d+)?"  # optional port
-        r"(?:/?|[/?]\S+)$",
-        re.IGNORECASE,
-    )
-
-    def __init__(self, *, url: str, **params):
-        """
-        Initializes a URL image source.
-
-        Parameters
-        ----------
-        url
-            The URL of the image.
-        """
-        super(ImageSourceUrl, self).__init__(type="URL", params=params)
-        self["url"] = self.__validate(value=url)
-
-    def __validate(self, value: str) -> str:
-        if (
-            not isinstance(value, str)
-            or value == ""
-            or not self.__validator_regex.search(value)
-        ):
-            raise error.ValidationError(self.__validator_message.format(value=value))
-
-        return value
-
-
-class JobType(Enum):
-    """
-    Available types of a job.
-    """
-
-    ANNOTATION_IMPORT = "ANNOTATION_IMPORT"
-    DELETE_IMAGES = "DELETE_IMAGES"
-    IMAGE_IMPORT = "IMAGE_IMPORT"
-    UPDATE_SLICE = "UPDATE_SLICE"
-    UPDATE_SLICE_BY_QUERY = "UPDATE_SLICE_BY_QUERY"
-
-    def __str__(self):
-        return self.value
-
-
-class Job(PaginateResource):
-    _endpoints = {
-        "bulk_create": "/curate/batch/jobs/",
-        "bulk_create_upload": "/curate/batch/params/",
-        "fetch": "/curate/batch/jobs/{id}/",
-        "paginate": "/curate/batch/jobs/",
-    }
-    _object_type = "job"
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        job_type: JobType,
-        param: dict,
-    ) -> Job:
-        """
-        Creates a job.
-
-        Parameters
-        ----------
-        job_type
-            The type of the job to create.
-        param
-            The parameters for the job.
-            Differs by each ``JobType``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The created job.
-        """
-
-        if not isinstance(job_type, JobType):
-            raise error.ValidationError(f"Invalid job type {job_type}.")
-
-        # Submit the bulk job
-        bulk_params = {"job_type": job_type.value, "param": param}
-        url = cls.get_endpoint(name="bulk_create", params=None)
-
-        return Job._static_request(
-            method_="post",
-            url_=url,
-            access_key=access_key,
-            team_name=team_name,
-            params=bulk_params,
-            headers=None,
-        )
-
-    @classmethod
-    def fetch(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        id: str,
-    ) -> Job:
-        """
-        Fetches a job.
-
-        Parameters
-        ----------
-        id
-            The ID of the job to fetch.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The fetched job.
-        """
-        endpoint_params = {"id": id}
-
-        return super(Job, cls).fetch(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-            headers=None,
-            params=None,
-        )
-
-    @classmethod
-    def fetch_all(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-    ) -> List[Job]:
-        """
-        Fetches jobs that match the date filter.
-        If not provided, fetches all jobs.
-
-        Parameters
-        ----------
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            Matching jobs.
-        """
-        all_jobs = []
-        for page in cls.fetch_page_iter(
-            access_key=access_key,
-            team_name=team_name,
-            from_date=from_date,
-        ):
-            all_jobs.extend(page.get("results", []))
-        return all_jobs
-
-    @classmethod
-    def fetch_all_iter(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-    ) -> Iterator[Job]:
-        """
-        Iterates through jobs that match the date filter.
-        If not provided, iterates through all jobs.
-
-        Parameters
-        ----------
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The matching job iterator.
-
-        Yields
-        -------
-            The next matching job.
-        """
-        for fetch_result in cls.fetch_page_iter(
-            access_key=access_key,
-            team_name=team_name,
-            from_date=from_date,
-        ):
-            for job in fetch_result.get("results", []):
-                yield job
-
-    @classmethod
-    def fetch_page(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-        cursor: Optional[str] = None,
-        limit: int = 10,
-    ) -> Dict[str, Union[int, List[Job]]]:
-        """
-        Fetches a page of jobs that match the date filter.
-        If not provided, paginates all jobs.
-
-        Parameters
-        ----------
-        cursor
-            A cursor for pagination.
-            Pass in `next_cursor` from the previous page to fetch the next page.
-        limit
-            The maximum number of jobs in a page.
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            A page of matching jobs.
-        """
-        params = {"limit": limit}
-
-        if from_date:
-            params.update({"from_date": from_date})
-
-        if cursor:
-            params["cursor"] = cursor
-
-        return super(Job, cls).fetch_page(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=None,
-            headers=None,
-            params=params,
-        )
-
-    @classmethod
-    def fetch_page_iter(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-    ) -> Iterator[Dict[str, Union[int, List[Job]]]]:
-        """
-        Iterates through pages of jobs that match the date filter.
-        If not provided, paginates all jobs.
-
-        Parameters
-        ----------
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The matching job page iterator.
-
-        Yields
-        -------
-            The next page of matching jobs.
-        """
-
-        cursor = None
-        page_result = {}
-        limit = FETCH_PAGE_LIMIT
-
-        def fetch_result(cursor: Optional[str] = None):
-            page_result = cls.fetch_page(
-                access_key=access_key,
-                team_name=team_name,
-                from_date=from_date,
-                cursor=cursor,
-                limit=limit,
-            )
-            return page_result
-
-        page_result = fetch_result(cursor=cursor)
-        yield page_result
-
-        while (
-            len(page_result.get("results", [])) == limit
-            and page_result.get("next_cursor", None) is not None
-        ):
-            page_result = fetch_result(cursor=page_result.get("next_cursor"))
-            yield page_result
-
-    @classmethod
-    def _upload_params(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        data: Union[dict, list],
-    ) -> dict:
-        # Upload params to S3 bucket
-        params_data = json.dumps(data, cls=cls.ReprJSONEncoder).encode("UTF-8")
-        url = cls.get_endpoint(name="bulk_create_upload", params=None)
-
-        requestor = api_requestor.APIRequestor(
-            access_key=access_key, team_name=team_name
-        )
-        response, access_key = requestor.request(
-            method="post",
-            url=url,
-            params={"file_size": len(params_data)},
-            headers=None,
-        )
-
-        upload_params_dict = util.convert_to_superb_ai_object(
-            data=response, access_key=access_key, team_name=team_name
-        )
-
-        put_params_response = requests.put(
-            upload_params_dict["upload_url"], data=params_data
-        )
-
-        if put_params_response.status_code != 200:
-            raise error.SuperbAIError(
-                "There was an error in uploading the job parameters."
-            )
-
-        return upload_params_dict
-
-    def refresh(
-        self,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-    ) -> None:
-        """
-        Refreshes the job.
-
-        Parameters
-        ----------
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-        """
-        endpoint_params = {"id": self.id}
-
-        super(Job, self).refresh(
-            access_key=access_key, team_name=team_name, endpoint_params=endpoint_params
-        )
-
-    def wait_until_complete(self, *, timeout: Optional[int] = None) -> None:
-        """
-        Waits until the job has either completed or failed.
-
-        Parameters
-        ----------
-        timeout
-            The maximum time in seconds to wait for.
-            If not provided, ``spb_curate.timeout`` will be used.
-        """
-        from spb_curate import timeout as default_timeout
-
-        if timeout is None:
-            timeout = default_timeout
-
-        frequency = 2  # seconds
-
-        while True:
-            if self.status in ["FAILED", "COMPLETE"]:
-                break
-
-            wait_seconds = min(timeout, frequency)
-
-            if wait_seconds <= 0:
-                break
-
-            timeout -= frequency
-            time.sleep(wait_seconds)
-
-            self.refresh()
-
-
 class Image(DeleteResource, PaginateResource, ModifyResource):
     _endpoints = {
         "bulk_asset_upload": "/curate/batch/assets/bulk/",
@@ -2213,7 +1331,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         while i < N:
             asset_size = images[i].source.get_asset_size()
 
-            if asset_size > UPLOAD_IMAGE_FILE_BYTES_MAX:
+            if asset_size > settings.UPLOAD_IMAGE_FILE_BYTES_MAX:
                 raise error.ValidationError(
                     f"The image with the key '{images[i].key}' has exceeded the file size "
                     f"limit of 20MB."
@@ -2285,7 +1403,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             )
 
         uploaded_param = Job._upload_params(
-            access_key=access_key, team_name=team_name, data=local_images+param_images
+            access_key=access_key, team_name=team_name, data=local_images + param_images
         )
 
         job = Job.create(
@@ -2294,7 +1412,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             job_type=JobType.IMAGE_IMPORT,
             param={
                 "dataset_id": dataset_id,
-                "images": {"param_id": uploaded_param["id"]}
+                "images": {"param_id": uploaded_param["id"]},
             },
         )
 
@@ -2627,7 +1745,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
         search_after = None
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
         def fetch_result(search_after: Optional[str] = None):
             page_result = cls.fetch_page(
@@ -2796,15 +1914,160 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         )
 
 
-class _Model(PaginateResource, ModifyResource):
+class ImageSourceLocal(BaseImageSource):
+    def __init__(
+        self,
+        *,
+        asset: Union[bytes, str, Path],
+        asset_id: Optional[str] = None,
+        **params,
+    ):
+        """
+        Initializes a local image source.
+
+        Parameters
+        ----------
+        asset
+            The data of the image.
+            Supports byte array, string path, ``Path``object of the image.
+        asset_id
+            The ID of the asset.
+            Should not be explicitly provided.
+        """
+        super(ImageSourceLocal, self).__init__(type="LOCAL", params=params)
+
+        if asset:
+            if isinstance(asset, str) or isinstance(asset, Path):
+                self._asset_path = asset
+            else:
+                self.__set_asset(asset=asset)
+
+            self._upload_url = None
+        else:
+            self.asset_id = asset_id
+
+    def __set_asset(self, *, asset: bytes):
+        self._asset = asset
+        self._asset_size = len(asset)
+
+    def get_asset(self) -> bytes:
+        self.load_asset()
+
+        return getattr(self, "_asset")
+
+    def load_asset(self) -> bytes:
+        if not hasattr(self, "_asset"):
+            if hasattr(self, "_asset_path"):
+                with open(self._asset_path, "rb") as fp:
+                    self.__set_asset(asset=fp.read())
+            else:
+                raise error.ValidationError(
+                    "Local image file path or bytes not supplied."
+                )
+
+        return self._asset
+
+    def unload_asset(self, *, force: bool = True):
+        if hasattr(self, "_asset") and force:
+            delattr(self, "_asset")
+
+    def get_asset_size(self) -> int:
+        if not hasattr(self, "_asset_size"):
+            self.load_asset()
+
+        return self._asset_size
+
+
+class ImageSourceUrl(BaseImageSource):
+    __validator_message = "The URL is invalid: {value}"
+    __validator_regex = re.compile(
+        r"^(?:http|ftp)s?://"  # http:// or https://
+        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
+        r"localhost|"  # localhost...
+        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
+        r"(?::\d+)?"  # optional port
+        r"(?:/?|[/?]\S+)$",
+        re.IGNORECASE,
+    )
+
+    def __init__(self, *, url: str, **params):
+        """
+        Initializes a URL image source.
+
+        Parameters
+        ----------
+        url
+            The URL of the image.
+        """
+        super(ImageSourceUrl, self).__init__(type="URL", params=params)
+        self["url"] = self.__validate(value=url)
+
+    def __validate(self, value: str) -> str:
+        if (
+            not isinstance(value, str)
+            or value == ""
+            or not self.__validator_regex.search(value)
+        ):
+            raise error.ValidationError(self.__validator_message.format(value=value))
+
+        return value
+
+
+class Job(PaginateResource):
     _endpoints = {
-        "modify": "/curate/model-diagnosis/models/{id}/",
-        "paginate": "/curate/model-diagnosis/models/",
+        "bulk_create": "/curate/batch/jobs/",
+        "bulk_create_upload": "/curate/batch/params/",
+        "fetch": "/curate/batch/jobs/{id}/",
+        "paginate": "/curate/batch/jobs/",
     }
-    _endpoints_method = {
-        "modify": "patch",
-    }
-    _object_type = "model"
+    _object_type = "job"
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        job_type: JobType,
+        param: dict,
+    ) -> Job:
+        """
+        Creates a job.
+
+        Parameters
+        ----------
+        job_type
+            The type of the job to create.
+        param
+            The parameters for the job.
+            Differs by each ``JobType``.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+
+        if not isinstance(job_type, JobType):
+            raise error.ValidationError(f"Invalid job type {job_type}.")
+
+        # Submit the bulk job
+        bulk_params = {"job_type": job_type.value, "param": param}
+        url = cls.get_endpoint(name="bulk_create", params=None)
+
+        return Job._static_request(
+            method_="post",
+            url_=url,
+            access_key=access_key,
+            team_name=team_name,
+            params=bulk_params,
+            headers=None,
+        )
 
     @classmethod
     def fetch(
@@ -2812,20 +2075,15 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-    ) -> _Model:
+        id: str,
+    ) -> Job:
         """
-        Fetches a model.
+        Fetches a job.
 
         Parameters
         ----------
         id
-            The ID of the model to fetch.
-            Must provide at least one of ``id`` or ``name``.
-        name
-            The name of the model.
-            Must provide at least one of ``id`` or ``name``.
+            The ID of the job to fetch.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -2835,30 +2093,17 @@ class _Model(PaginateResource, ModifyResource):
 
         Returns
         -------
-            The fetched model.
+            The fetched job.
         """
-        if id is None and name is None:
-            raise error.ValidationError("Must provide at least one of id or name.")
-        elif id is not None and name is not None:
-            raise error.ValidationError("Must provide only one of id or name.")
+        endpoint_params = {"id": id}
 
-        exact = {}
-
-        if id:
-            exact.update({"id": id})
-
-        if name:
-            exact.update({"name": name})
-
-        try:
-            return cls.fetch_all(
-                access_key=access_key,
-                team_name=team_name,
-                exact=exact,
-            )[0]
-        except IndexError:
-            # TODO: Fix error message
-            raise error.NotFoundError("Could not find the model.") from None
+        return super(Job, cls).fetch(
+            access_key=access_key,
+            team_name=team_name,
+            endpoint_params=endpoint_params,
+            headers=None,
+            params=None,
+        )
 
     @classmethod
     def fetch_all(
@@ -2866,18 +2111,16 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
-    ) -> List[_Model]:
+        from_date: Optional[str] = None,
+    ) -> List[Job]:
         """
-        Fetches models that match the provided filters.
-        If filters are not provided, fetches all models.
+        Fetches jobs that match the date filter.
+        If not provided, fetches all jobs.
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
+        from_date
+            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -2887,16 +2130,16 @@ class _Model(PaginateResource, ModifyResource):
 
         Returns
         -------
-            Matching models.
+            Matching jobs.
         """
-        all_models = []
+        all_jobs = []
         for page in cls.fetch_page_iter(
             access_key=access_key,
             team_name=team_name,
-            exact=exact,
+            from_date=from_date,
         ):
-            all_models.extend(page.get("results", []))
-        return all_models
+            all_jobs.extend(page.get("results", []))
+        return all_jobs
 
     @classmethod
     def fetch_all_iter(
@@ -2904,18 +2147,16 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
-    ) -> Iterator[_Model]:
+        from_date: Optional[str] = None,
+    ) -> Iterator[Job]:
         """
-        Iterates through models that match the provided filters.
-        If filters are not provided, iterates through all models.
+        Iterates through jobs that match the date filter.
+        If not provided, iterates through all jobs.
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
+        from_date
+            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -2925,19 +2166,19 @@ class _Model(PaginateResource, ModifyResource):
 
         Returns
         -------
-            The matching model iterator.
+            The matching job iterator.
 
         Yields
         -------
-            The next matching models.
+            The next matching job.
         """
-        for fetch_result in _Model.fetch_page_iter(
+        for fetch_result in cls.fetch_page_iter(
             access_key=access_key,
             team_name=team_name,
-            exact=exact,
+            from_date=from_date,
         ):
-            for model in fetch_result.get("results", []):
-                yield model
+            for job in fetch_result.get("results", []):
+                yield job
 
     @classmethod
     def fetch_page(
@@ -2945,24 +2186,23 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
-        page: int = 1,
+        from_date: Optional[str] = None,
+        cursor: Optional[str] = None,
         limit: int = 10,
-    ) -> Dict[str, Union[int, List[_Model]]]:
+    ) -> Dict[str, Union[int, List[Job]]]:
         """
-        Fetches a page of models that match the provided filters.
-        If filters are not provided, paginates all models.
+        Fetches a page of jobs that match the date filter.
+        If not provided, paginates all jobs.
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
-        page
-            The page number.
+        cursor
+            A cursor for pagination.
+            Pass in `next_cursor` from the previous page to fetch the next page.
         limit
-            The maximum number of diagnoses in a page.
+            The maximum number of jobs in a page.
+        from_date
+            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -2972,22 +2212,20 @@ class _Model(PaginateResource, ModifyResource):
 
         Returns
         -------
-            A page of matching diagnoses.
+            A page of matching jobs.
         """
-        params = {"size": limit}
+        params = {"limit": limit}
 
-        if exact:
-            for field, filter in [
-                ("name", "name"),
-            ]:
-                params.update({filter: exact.get(field)})
+        if from_date:
+            params.update({"from_date": from_date})
 
-        if page:
-            params["page"] = page
+        if cursor:
+            params["cursor"] = cursor
 
-        return super(_Model, cls).fetch_page(
+        return super(Job, cls).fetch_page(
             access_key=access_key,
             team_name=team_name,
+            endpoint_params=None,
             headers=None,
             params=params,
         )
@@ -2998,18 +2236,16 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
-    ) -> Iterator[Dict[str, Union[int, List[_Model]]]]:
+        from_date: Optional[str] = None,
+    ) -> Iterator[Dict[str, Union[int, List[Job]]]]:
         """
-        Iterates through pages of models that match the provided filters.
-        If filters are not provided, paginates all models.
+        Iterates through pages of jobs that match the date filter.
+        If not provided, paginates all jobs.
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
+        from_date
+            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -3019,119 +2255,128 @@ class _Model(PaginateResource, ModifyResource):
 
         Returns
         -------
-            The matching model page iterator.
+            The matching job page iterator.
 
         Yields
         -------
-            The next page of matching models.
+            The next page of matching jobs.
         """
 
-        page = 1
+        cursor = None
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
-        def fetch_result(page: int):
+        def fetch_result(cursor: Optional[str] = None):
             page_result = cls.fetch_page(
                 access_key=access_key,
                 team_name=team_name,
-                exact=exact,
-                page=page,
+                from_date=from_date,
+                cursor=cursor,
                 limit=limit,
             )
             return page_result
 
-        page_result = fetch_result(page=page)
+        page_result = fetch_result(cursor=cursor)
         yield page_result
 
-        while page * limit < page_result["count"]:
-            page += 1
-            page_result = fetch_result(page=page)
+        while (
+            len(page_result.get("results", [])) == limit
+            and page_result.get("next_cursor", None) is not None
+        ):
+            page_result = fetch_result(cursor=page_result.get("next_cursor"))
             yield page_result
 
-    def modify(
+    @classmethod
+    def _upload_params(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        data: Union[dict, list],
+    ) -> dict:
+        # Upload params to S3 bucket
+        params_data = json.dumps(data, cls=cls.ReprJSONEncoder).encode("UTF-8")
+        url = cls.get_endpoint(name="bulk_create_upload", params=None)
+
+        requestor = api_requestor.APIRequestor(
+            access_key=access_key, team_name=team_name
+        )
+        response, access_key = requestor.request(
+            method="post",
+            url=url,
+            params={"file_size": len(params_data)},
+            headers=None,
+        )
+
+        upload_params_dict = util.convert_to_superb_ai_object(
+            data=response, access_key=access_key, team_name=team_name
+        )
+
+        put_params_response = requests.put(
+            upload_params_dict["upload_url"], data=params_data
+        )
+
+        if put_params_response.status_code != 200:
+            raise error.SuperbAIError(
+                "There was an error in uploading the job parameters."
+            )
+
+        return upload_params_dict
+
+    def refresh(
         self,
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        name: Optional[str] = None,
     ) -> None:
         """
-        Modifies the model.
+        Refreshes the job.
 
         Parameters
         ----------
-        name
-            The new name for the model.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
         team_name
             A team name for request authentication.
             If provided, overrides the configuration.
-
-        Raises
-        ------
-        ConflictError
-            When a model with the provided name already exists.
         """
-        if name is None:
-            return
-
         endpoint_params = {"id": self.id}
-        params = {"name": name}
 
-        super(_Model, self).modify(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-            params=params,
+        super(Job, self).refresh(
+            access_key=access_key, team_name=team_name, endpoint_params=endpoint_params
         )
 
-
-class Prediction(SuperbAIObject):
-    def __init__(
-        self,
-        *,
-        prediction_class: str,
-        prediction_confidence: Union[int, float, decimal.Decimal],
-        prediction_type: Optional[str] = None,
-        prediction_value: Union[
-            BoundingBox,
-            Category,
-            Cuboid2D,
-            Keypoints,
-            Polygon,
-            Polyline,
-            RotatedBox,
-            dict,
-            list,
-        ],
-        **params,
-    ):
+    def wait_until_complete(self, *, timeout: Optional[int] = None) -> None:
         """
-        Initializes a prediction.
-        A newly initialized prediction is incomplete and must be added to an evaluation.
+        Waits until the job has either completed or failed.
 
         Parameters
         ----------
-        prediction_class
-            The classification of the prediction (e.g. "person", "vehicle").
-        prediction_type
-            The type of the prediction (e.g. "box", "polygon").
-            Will be inferred if ``prediction_value`` is an instance of ``AnnotationType``.
-        prediction_value
-            The value of the prediction.
+        timeout
+            The maximum time in seconds to wait for.
+            If not provided, ``spb_curate.timeout`` will be used.
         """
+        from spb_curate import timeout as default_timeout
 
-        super(Prediction, self).__init__(
-            prediction_class=prediction_class,
-            prediction_confidence=prediction_confidence,
-            prediction_type=prediction_type._object_type
-            if isinstance(prediction_type, AnnotationType)
-            else prediction_type,
-            prediction_value=prediction_value,
-            **params,
-        )
+        if timeout is None:
+            timeout = default_timeout
+
+        frequency = 2  # seconds
+
+        while True:
+            if self.status in ["FAILED", "COMPLETE"]:
+                break
+
+            wait_seconds = min(timeout, frequency)
+
+            if wait_seconds <= 0:
+                break
+
+            timeout -= frequency
+            time.sleep(wait_seconds)
+
+            self.refresh()
 
 
 class SearchFieldMapping(PaginateResource):
@@ -3338,15 +2583,6 @@ class SearchFieldMapping(PaginateResource):
         Not implemented.
         """
         raise NotImplementedError
-
-
-class SearchFieldMappingType(str, Enum):
-    ANNOTATION_CLASS = "annotations.class_count"
-    ANNOTATION_METADATA = "annotations.metadata"
-    IMAGE_METADATA = "images.metadata"
-
-    def __str__(self):
-        return self.value
 
 
 class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
@@ -3679,7 +2915,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
 
         page = 1
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
         def fetch_result(page: int):
             page_result = cls.fetch_page(
@@ -3946,9 +3182,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 job_type=JobType.UPDATE_SLICE,
                 param={
                     "dataset_id": self.dataset_id,
-                    "images": {
-                        "param_id": uploaded_param["id"]
-                    },
+                    "images": {"param_id": uploaded_param["id"]},
                     "slices": {"add": [], "remove": [self.id]},
                 },
             )
@@ -4199,17 +3433,6 @@ def create_dataset(
     )
 
 
-def fetch_available_models(
-    *,
-    access_key: Optional[str] = None,
-    team_name: Optional[str] = None,
-) -> Dict[str, str]:
-    return [
-        model.to_dict_deep()
-        for model in _Model.fetch_all(access_key=access_key, team_name=team_name)
-    ]
-
-
 def fetch_dataset(
     *,
     access_key: Optional[str] = None,
@@ -4301,39 +3524,4 @@ def fetch_datasets(
         contains=contains,
         include_image_count=include_image_count,
         include_slice_count=include_slice_count,
-    )
-
-
-def modify_model_name(
-    *,
-    access_key: Optional[str] = None,
-    team_name: Optional[str] = None,
-    id: str,
-    name: str,
-):
-    """
-    Modifies the model.
-
-    Parameters
-    ----------
-    id
-        The id of the model to modify.
-    name
-        The new name for the model.
-    access_key
-        An access key for request authentication.
-        If provided, overrides the configuration.
-    team_name
-        A team name for request authentication.
-        If provided, overrides the configuration.
-
-    Raises
-    ------
-    ConflictError
-        When a model with the provided name already exists.
-    """
-    _Model(id=id).modify(
-        access_key=access_key,
-        team_name=team_name,
-        name=name,
     )
