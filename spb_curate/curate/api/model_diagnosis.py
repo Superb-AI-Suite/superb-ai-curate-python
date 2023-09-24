@@ -11,6 +11,8 @@ from spb_curate.abstract.api.resource import (
 )
 from spb_curate.abstract.superb_ai_object import SuperbAIObject
 from spb_curate.curate.api import settings
+from spb_curate.curate.api.curate import Job
+from spb_curate.curate.api.enums import JobType
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
     BoundingBox,
@@ -349,6 +351,44 @@ class Diagnosis(CreateResource, ModifyResource, PaginateResource):
             page_result = fetch_result(page=page)
             yield page_result
 
+    def add_evaluations(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        evaluations: List[Evaluation],
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that adds newly initialized evaluations to the diagnosis.
+
+        Parameters
+        ----------
+        evaluations
+            Newly initialized evaluations to add.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        return Evaluation.create_bulk(
+            access_key=access_key,
+            team_name=team_name,
+            dataset_id=self.dataset_id,
+            diagnosis_id=self.id,
+            evaluations=evaluations,
+            asynchronous=asynchronous,
+        )
+
     def modify(
         self,
         *,
@@ -409,6 +449,113 @@ class Diagnosis(CreateResource, ModifyResource, PaginateResource):
             team_name=team_name,
             endpoint_params=endpoint_params,
         )
+
+
+class Evaluation(CreateResource):
+    _object_type = "evaluation"
+
+    def __init__(
+        self,
+        *,
+        image_id: str,
+        predictions: List[Prediction] = [],
+        **params,
+    ):
+        """
+        Initializes an evaluation.
+        A newly initialized evaluation is incomplete and must be added to a diagnosis.
+
+        Parameters
+        ----------
+        image_id
+            The ID of the image to associate the evaluation to.
+        predictions
+            Newly initialized predictions to add.
+        """
+
+        super(Prediction, self).__init__(
+            image_id=image_id,
+            predictions=predictions,
+            **params,
+        )
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+    ) -> Evaluation:
+        """
+        Not implemented.
+        Evaluations can be created by ``Evaluation.create_bulk()`` or ``Diagnosis.add_evaluations()``.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def create_bulk(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        diagnosis_id: str,
+        evaluations: List[Evaluation],
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that adds newly initialized evaluations to a diagnosis.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to add the evaluations to.
+        diagnosis_id
+            The ID of the diagnosis to add the evaluations to.
+        evaluations
+            Newly initialized evaluations to add.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+
+        raw_evaluations = []
+
+        # Ensure the evaluation_values are converted to "raw" form
+        for evaluation in evaluations:
+            raw_evaluations.append(evaluation.to_dict_deep())
+
+        uploaded_param = Job._upload_params(
+            access_key=access_key,
+            team_name=team_name,
+            data=raw_evaluations,
+        )
+
+        job = Job.create(
+            access_key=access_key,
+            team_name=team_name,
+            job_type=JobType.EVALUATION_IMPORT,
+            param={
+                "dataset_id": dataset_id,
+                "diagnosis_id": diagnosis_id,
+                "evaluations": {"param_id": uploaded_param["id"]},
+            },
+        )
+
+        if not asynchronous:
+            job.wait_until_complete()
+
+        return job
 
 
 class _Model(PaginateResource, ModifyResource):
