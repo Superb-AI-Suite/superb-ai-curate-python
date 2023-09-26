@@ -31,6 +31,9 @@ class Diagnosis(CreateResource, PaginateResource):
         "fetch": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/{id}/",
         "paginate": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/_search/",
     }
+    _endpoints_method = {
+        "paginate": "post",
+    }
     _object_type = "diagnosis"
 
     @classmethod
@@ -41,6 +44,7 @@ class Diagnosis(CreateResource, PaginateResource):
         team_name: Optional[str] = None,
         dataset_id: str,
         model_name: str,
+        metadata: dict,
     ) -> Diagnosis:
         """
         Creates a diagnosis.
@@ -51,6 +55,8 @@ class Diagnosis(CreateResource, PaginateResource):
             The ID of the dataset to use for the diagnosis.
         model_name
             The name of the model to diagnose.
+        metadata
+            The metadata associated with the diagnosis.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -69,6 +75,7 @@ class Diagnosis(CreateResource, PaginateResource):
         """
         endpoint_params = {"dataset_id": dataset_id}
         params = {
+            "metadata": metadata,
             "model_name": model_name,
             "model_source": "external",
         }
@@ -88,8 +95,7 @@ class Diagnosis(CreateResource, PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        id: Optional[str] = None,
-        model_name: Optional[str] = None,
+        id: str,
     ) -> Diagnosis:
         """
         Fetches a diagnosis.
@@ -100,10 +106,6 @@ class Diagnosis(CreateResource, PaginateResource):
             The ID of the dataset to fetch the diagnosis from.
         id
             The ID of the diagnosis to fetch.
-            Must provide at least one of ``id`` or ``model_name``.
-        model_name
-            The name of the model associated with the dataset's diagnosis.
-            Must provide at least one of ``id`` or ``model_name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -115,25 +117,6 @@ class Diagnosis(CreateResource, PaginateResource):
         -------
             The fetched diagnosis.
         """
-        if id is None and model_name is None:
-            raise error.ValidationError(
-                "Must provide at least one of id or model_name."
-            )
-        elif id is not None and model_name is not None:
-            raise error.ValidationError("Must provide only one of id or model_name.")
-
-        if model_name:
-            try:
-                return cls.fetch_all(
-                    access_key=access_key,
-                    team_name=team_name,
-                    dataset_id=dataset_id,
-                    exact={"model_name": model_name},
-                )[0]
-            except IndexError:
-                # TODO: Fix error message
-                raise error.NotFoundError("Could not find the diagnosis.") from None
-
         endpoint_params = {"dataset_id": dataset_id, "id": id}
 
         return super(Diagnosis, cls).fetch(
@@ -149,7 +132,6 @@ class Diagnosis(CreateResource, PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        exact: Dict[str, Any] = None,
     ) -> List[Diagnosis]:
         """
         Fetches diagnoses that match the provided filters.
@@ -159,10 +141,6 @@ class Diagnosis(CreateResource, PaginateResource):
         ----------
         dataset_id
             The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -179,7 +157,6 @@ class Diagnosis(CreateResource, PaginateResource):
             access_key=access_key,
             team_name=team_name,
             dataset_id=dataset_id,
-            exact=exact,
         ):
             all_diagnoses.extend(page.get("results", []))
         return all_diagnoses
@@ -191,7 +168,6 @@ class Diagnosis(CreateResource, PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        exact: Dict[str, Any] = None,
     ) -> Iterator[Diagnosis]:
         """
         Iterates through diagnoses that match the provided filters.
@@ -201,10 +177,6 @@ class Diagnosis(CreateResource, PaginateResource):
         ----------
         dataset_id
             The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -224,7 +196,6 @@ class Diagnosis(CreateResource, PaginateResource):
             access_key=access_key,
             team_name=team_name,
             dataset_id=dataset_id,
-            exact=exact,
         ):
             for diagnosis in fetch_result.get("results", []):
                 yield diagnosis
@@ -236,7 +207,6 @@ class Diagnosis(CreateResource, PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        exact: Dict[str, Any] = None,
         page: int = 1,
         limit: int = 10,
     ) -> Dict[str, Union[int, List[Diagnosis]]]:
@@ -248,10 +218,6 @@ class Diagnosis(CreateResource, PaginateResource):
         ----------
         dataset_id
             The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
         page
             The page number.
         limit
@@ -269,12 +235,6 @@ class Diagnosis(CreateResource, PaginateResource):
         """
         endpoint_params = {"dataset_id": dataset_id}
         params = {"size": limit}
-
-        if exact:
-            for field, filter in [
-                ("model_name", "model_name"),
-            ]:
-                params.update({filter: exact.get(field)})
 
         if page:
             params["page"] = page
@@ -294,7 +254,6 @@ class Diagnosis(CreateResource, PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        exact: Dict[str, Any] = None,
     ) -> Iterator[Dict[str, Union[int, List[Diagnosis]]]]:
         """
         Iterates through pages of diagnoses that match the provided filters.
@@ -304,10 +263,6 @@ class Diagnosis(CreateResource, PaginateResource):
         ----------
         dataset_id
             The ID of the dataset to fetch the diagnosis from.
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``model_name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -333,7 +288,6 @@ class Diagnosis(CreateResource, PaginateResource):
                 access_key=access_key,
                 team_name=team_name,
                 dataset_id=dataset_id,
-                exact=exact,
                 page=page,
                 limit=limit,
             )
@@ -522,10 +476,11 @@ class Evaluation(CreateResource):
 class _Model(PaginateResource, ModifyResource):
     _endpoints = {
         "modify": "/curate/model-diagnosis/models/{id}/",
-        "paginate": "/curate/model-diagnosis/models/",
+        "paginate": "/curate/model-diagnosis/models/_search",
     }
     _endpoints_method = {
         "modify": "patch",
+        "paginate": "post",
     }
     _object_type = "model"
 
@@ -535,53 +490,8 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
     ) -> _Model:
-        """
-        Fetches a model.
-
-        Parameters
-        ----------
-        id
-            The ID of the model to fetch.
-            Must provide at least one of ``id`` or ``name``.
-        name
-            The name of the model.
-            Must provide at least one of ``id`` or ``name``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The fetched model.
-        """
-        if id is None and name is None:
-            raise error.ValidationError("Must provide at least one of id or name.")
-        elif id is not None and name is not None:
-            raise error.ValidationError("Must provide only one of id or name.")
-
-        exact = {}
-
-        if id:
-            exact.update({"id": id})
-
-        if name:
-            exact.update({"name": name})
-
-        try:
-            return cls.fetch_all(
-                access_key=access_key,
-                team_name=team_name,
-                exact=exact,
-            )[0]
-        except IndexError:
-            # TODO: Fix error message
-            raise error.NotFoundError("Could not find the model.") from None
+        raise NotImplementedError
 
     @classmethod
     def fetch_all(
@@ -589,7 +499,6 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
     ) -> List[_Model]:
         """
         Fetches models that match the provided filters.
@@ -597,10 +506,6 @@ class _Model(PaginateResource, ModifyResource):
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -616,7 +521,6 @@ class _Model(PaginateResource, ModifyResource):
         for page in cls.fetch_page_iter(
             access_key=access_key,
             team_name=team_name,
-            exact=exact,
         ):
             all_models.extend(page.get("results", []))
         return all_models
@@ -627,7 +531,6 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
     ) -> Iterator[_Model]:
         """
         Iterates through models that match the provided filters.
@@ -635,10 +538,6 @@ class _Model(PaginateResource, ModifyResource):
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -657,7 +556,6 @@ class _Model(PaginateResource, ModifyResource):
         for fetch_result in _Model.fetch_page_iter(
             access_key=access_key,
             team_name=team_name,
-            exact=exact,
         ):
             for model in fetch_result.get("results", []):
                 yield model
@@ -668,7 +566,6 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
         page: int = 1,
         limit: int = 10,
     ) -> Dict[str, Union[int, List[_Model]]]:
@@ -678,10 +575,6 @@ class _Model(PaginateResource, ModifyResource):
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
         page
             The page number.
         limit
@@ -699,18 +592,13 @@ class _Model(PaginateResource, ModifyResource):
         """
         params = {"size": limit}
 
-        if exact:
-            for field, filter in [
-                ("name", "name"),
-            ]:
-                params.update({filter: exact.get(field)})
-
         if page:
             params["page"] = page
 
         return super(_Model, cls).fetch_page(
             access_key=access_key,
             team_name=team_name,
+            endpoint_params=None,
             headers=None,
             params=params,
         )
@@ -721,7 +609,6 @@ class _Model(PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        exact: Dict[str, Any] = None,
     ) -> Iterator[Dict[str, Union[int, List[_Model]]]]:
         """
         Iterates through pages of models that match the provided filters.
@@ -729,10 +616,6 @@ class _Model(PaginateResource, ModifyResource):
 
         Parameters
         ----------
-        exact
-            A dictionary for exact, case-sensitive filtering.
-            Must provide field names as keys and their desired values.
-            Supported fields: ``name``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -757,7 +640,6 @@ class _Model(PaginateResource, ModifyResource):
             page_result = cls.fetch_page(
                 access_key=access_key,
                 team_name=team_name,
-                exact=exact,
                 page=page,
                 limit=limit,
             )
@@ -948,7 +830,7 @@ def fetch_available_models(
     *,
     access_key: Optional[str] = None,
     team_name: Optional[str] = None,
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     return [
         model.to_dict_deep()
         for model in _Model.fetch_all(access_key=access_key, team_name=team_name)
@@ -961,7 +843,7 @@ def modify_model_name(
     team_name: Optional[str] = None,
     id: str,
     name: str,
-):
+) -> Dict[str, Any]:
     """
     Modifies the model.
 
@@ -983,8 +865,11 @@ def modify_model_name(
     ConflictError
         When a model with the provided name already exists.
     """
-    _Model(id=id).modify(
+    obj = _Model(id=id)
+    obj.modify(
         access_key=access_key,
         team_name=team_name,
         name=name,
     )
+
+    return obj.to_dict_deep()
