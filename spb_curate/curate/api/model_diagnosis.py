@@ -29,10 +29,7 @@ class Diagnosis(CreateResource, PaginateResource):
     _endpoints = {
         "create": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/",
         "fetch": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/{id}/",
-        "paginate": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/_search/",
-    }
-    _endpoints_method = {
-        "paginate": "post",
+        "paginate": "/curate/model-diagnosis/datasets/{dataset_id}/diagnoses/",
     }
     _object_type = "diagnosis"
 
@@ -475,12 +472,11 @@ class Evaluation(CreateResource):
 
 class _Model(PaginateResource, ModifyResource):
     _endpoints = {
-        "modify": "/curate/model-diagnosis/models/{id}/",
-        "paginate": "/curate/model-diagnosis/models/_search",
+        "modify": "/curate/model-diagnosis/external-models/{id}/",
+        "paginate": "/curate/model-diagnosis/external-models/",
     }
     _endpoints_method = {
         "modify": "patch",
-        "paginate": "post",
     }
     _object_type = "model"
 
