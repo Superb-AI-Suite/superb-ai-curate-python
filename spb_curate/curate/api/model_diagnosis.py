@@ -298,21 +298,21 @@ class Diagnosis(CreateResource, PaginateResource):
             page_result = fetch_result(page=page)
             yield page_result
 
-    def add_evaluations(
+    def add_predictions(
         self,
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        evaluations: List[Evaluation],
+        predictions: List[Prediction],
         asynchronous: bool = True,
     ) -> Job:
         """
-        Creates a job that adds newly initialized evaluations to the diagnosis.
+        Creates a job that adds newly initialized predictions to the diagnosis.
 
         Parameters
         ----------
-        evaluations
-            Newly initialized evaluations to add.
+        predictions
+            Newly initialized predictions to add.
         asynchronous
             Whether to immediately return the job after creating it.
             If set to ``False``, the function waits for the job to finish before returning.
@@ -327,12 +327,12 @@ class Diagnosis(CreateResource, PaginateResource):
         -------
             The created job.
         """
-        return Evaluation.create_bulk(
+        return Prediction.create_bulk(
             access_key=access_key,
             team_name=team_name,
             dataset_id=self.dataset_id,
             diagnosis_id=self.id,
-            evaluations=evaluations,
+            predictions=predictions,
             asynchronous=asynchronous,
         )
 
@@ -363,111 +363,8 @@ class Diagnosis(CreateResource, PaginateResource):
         )
 
 
-class Evaluation(CreateResource):
+class Evaluation(SuperbAIObject):
     _object_type = "evaluation"
-
-    def __init__(
-        self,
-        *,
-        image_id: str,
-        predictions: List[Prediction] = [],
-        **params,
-    ):
-        """
-        Initializes an evaluation.
-        A newly initialized evaluation is incomplete and must be added to a diagnosis.
-
-        Parameters
-        ----------
-        image_id
-            The ID of the image to associate the evaluation to.
-        predictions
-            Newly initialized predictions to add.
-        """
-
-        super(Prediction, self).__init__(
-            image_id=image_id,
-            predictions=predictions,
-            **params,
-        )
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-    ) -> Evaluation:
-        """
-        Not implemented.
-        Evaluations can be created by ``Evaluation.create_bulk()`` or ``Diagnosis.add_evaluations()``.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def create_bulk(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        dataset_id: str,
-        diagnosis_id: str,
-        evaluations: List[Evaluation],
-        asynchronous: bool = True,
-    ) -> Job:
-        """
-        Creates a job that adds newly initialized evaluations to a diagnosis.
-
-        Parameters
-        ----------
-        dataset_id
-            The ID of the dataset to add the evaluations to.
-        diagnosis_id
-            The ID of the diagnosis to add the evaluations to.
-        evaluations
-            Newly initialized evaluations to add.
-        asynchronous
-            Whether to immediately return the job after creating it.
-            If set to ``False``, the function waits for the job to finish before returning.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The created job.
-        """
-
-        raw_evaluations = []
-
-        # Ensure the evaluation_values are converted to "raw" form
-        for evaluation in evaluations:
-            raw_evaluations.append(evaluation.to_dict_deep())
-
-        uploaded_param = Job._upload_params(
-            access_key=access_key,
-            team_name=team_name,
-            data=raw_evaluations,
-        )
-
-        job = Job.create(
-            access_key=access_key,
-            team_name=team_name,
-            job_type=JobType.EVALUATION_IMPORT,
-            param={
-                "dataset_id": dataset_id,
-                "diagnosis_id": diagnosis_id,
-                "evaluations": {"param_id": uploaded_param["id"]},
-            },
-        )
-
-        if not asynchronous:
-            job.wait_until_complete()
-
-        return job
 
 
 class _Model(PaginateResource, ModifyResource):
@@ -709,8 +606,9 @@ class Prediction(SuperbAIObject):
     def __init__(
         self,
         *,
-        prediction_class: str,
         confidence: Union[int, float, decimal.Decimal],
+        image_id: str,
+        prediction_class: str,
         prediction_value: Union[
             BoundingBox,
             Category,
@@ -727,10 +625,14 @@ class Prediction(SuperbAIObject):
     ):
         """
         Initializes a prediction.
-        A newly initialized prediction is incomplete and must be added to an evaluation.
+        A newly initialized prediction is incomplete and must be added to an prediction.
 
         Parameters
         ----------
+        confidence
+            The score of the prediction.
+        image_id
+            The ID of the image to add the prediction to.
         prediction_class
             The classification of the prediction (e.g. "person", "vehicle").
         prediction_value
@@ -741,8 +643,9 @@ class Prediction(SuperbAIObject):
         """
 
         super(Prediction, self).__init__(
-            prediction_class=prediction_class,
             confidence=confidence,
+            image_id=image_id,
+            prediction_class=prediction_class,
             prediction_value=prediction_value,
             prediction_type=prediction_value._object_type
             if isinstance(prediction_value, AnnotationType)
@@ -752,8 +655,9 @@ class Prediction(SuperbAIObject):
 
     def _init_volatile_fields(
         self,
-        prediction_class: str,
         confidence: Union[int, float, decimal.Decimal],
+        image_id: str,
+        prediction_class: str,
         prediction_value: Union[
             BoundingBox,
             Category,
@@ -769,8 +673,9 @@ class Prediction(SuperbAIObject):
         **params,
     ) -> None:
         super(Prediction, self)._init_volatile_fields(
-            prediction_class=prediction_class,
             confidence=confidence,
+            image_id=image_id,
+            prediction_class=prediction_class,
             prediction_value=prediction_value,
             prediction_type=prediction_type,
             **params,
@@ -778,8 +683,9 @@ class Prediction(SuperbAIObject):
 
         for k, v, is_required in iter(
             [
-                ("prediction_class", prediction_class, True),
                 ("confidence", confidence, True),
+                ("image_id", image_id, True),
+                ("prediction_class", prediction_class, True),
                 ("prediction_type", prediction_type, True),
                 ("prediction_value", prediction_value, True),
             ]
@@ -820,6 +726,115 @@ class Prediction(SuperbAIObject):
             field="prediction_value", data={"prediction_type": prediction_type}
         )
         self.prediction_value = prediction_type_cls(raw_data=prediction_value)
+
+    @classmethod
+    def create_bulk(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        diagnosis_id: str,
+        predictions: List[Prediction],
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that adds newly initialized predictions to a diagnosis.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to add the predictions to.
+        diagnosis_id
+            The ID of the diagnosis to add the predictions to.
+        predictions
+            Newly initialized predictions to add.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+
+        raw_predictions = []
+
+        # Ensure the prediction_values are converted to "raw" form
+        for prediction in predictions:
+            raw_predictions.append(prediction.to_dict_deep())
+
+        uploaded_param = Job._upload_params(
+            access_key=access_key,
+            team_name=team_name,
+            data=raw_predictions,
+        )
+
+        job = Job.create(
+            access_key=access_key,
+            team_name=team_name,
+            job_type=JobType.IMPORT_PREDICTIONS,
+            param={
+                "dataset_id": dataset_id,
+                "diagnosis_id": diagnosis_id,
+                "predictions": {"param_id": uploaded_param["id"]},
+            },
+        )
+
+        if not asynchronous:
+            job.wait_until_complete()
+
+        return job
+
+
+def create_diagnosis(
+    *,
+    access_key: Optional[str] = None,
+    team_name: Optional[str] = None,
+    dataset_id: str,
+    model_name: str,
+    metadata: dict,
+) -> Diagnosis:
+    """
+    Creates a diagnosis.
+
+    Parameters
+    ----------
+    dataset_id
+            The ID of the dataset to use for the diagnosis.
+    model_name
+        The name of the model to diagnose.
+    metadata
+            The metadata associated with the diagnosis.
+    access_key
+        An access key for request authentication.
+        If provided, overrides the configuration.
+    team_name
+        A team name for request authentication.
+        If provided, overrides the configuration.
+
+    Returns
+    -------
+        The created diagnosis.
+
+    Raises
+    ------
+    ConflictError
+        When a diagnosis for the (dataset, model_name) pair already exists.
+    """
+    return Diagnosis.create(
+        access_key=access_key,
+        team_name=team_name,
+        dataset_id=dataset_id,
+        model_name=model_name,
+        metadata=metadata,
+    )
 
 
 def fetch_available_models(
