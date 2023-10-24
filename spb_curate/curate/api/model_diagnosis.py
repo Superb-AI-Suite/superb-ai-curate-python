@@ -710,7 +710,7 @@ class Prediction(SuperbAIObject):
         self,
         *,
         prediction_class: str,
-        prediction_confidence: Union[int, float, decimal.Decimal],
+        confidence: Union[int, float, decimal.Decimal],
         prediction_value: Union[
             BoundingBox,
             Category,
@@ -742,7 +742,7 @@ class Prediction(SuperbAIObject):
 
         super(Prediction, self).__init__(
             prediction_class=prediction_class,
-            prediction_confidence=prediction_confidence,
+            confidence=confidence,
             prediction_value=prediction_value,
             prediction_type=prediction_value._object_type
             if isinstance(prediction_value, AnnotationType)
@@ -753,7 +753,7 @@ class Prediction(SuperbAIObject):
     def _init_volatile_fields(
         self,
         prediction_class: str,
-        prediction_confidence: Union[int, float, decimal.Decimal],
+        confidence: Union[int, float, decimal.Decimal],
         prediction_value: Union[
             BoundingBox,
             Category,
@@ -770,7 +770,7 @@ class Prediction(SuperbAIObject):
     ) -> None:
         super(Prediction, self)._init_volatile_fields(
             prediction_class=prediction_class,
-            prediction_confidence=prediction_confidence,
+            confidence=confidence,
             prediction_value=prediction_value,
             prediction_type=prediction_type,
             **params,
@@ -779,7 +779,7 @@ class Prediction(SuperbAIObject):
         for k, v, is_required in iter(
             [
                 ("prediction_class", prediction_class, True),
-                ("prediction_confidence", prediction_confidence, True),
+                ("confidence", confidence, True),
                 ("prediction_type", prediction_type, True),
                 ("prediction_value", prediction_value, True),
             ]
