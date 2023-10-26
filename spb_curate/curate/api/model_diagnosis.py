@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import decimal
+import json
 from typing import Any, Dict, Iterator, List, Optional, Union
 
 from spb_curate import error, util
@@ -41,6 +42,7 @@ class Diagnosis(CreateResource, PaginateResource):
         team_name: Optional[str] = None,
         dataset_id: str,
         model_name: str,
+        class_list: List[str],
         metadata: dict,
     ) -> Diagnosis:
         """
@@ -52,6 +54,8 @@ class Diagnosis(CreateResource, PaginateResource):
             The ID of the dataset to use for the diagnosis.
         model_name
             The name of the model to diagnose.
+        class_list
+            The list of class names to diagnose.
         metadata
             The metadata associated with the diagnosis.
         access_key
@@ -71,8 +75,9 @@ class Diagnosis(CreateResource, PaginateResource):
             When a diagnosis related to the dataset and model already exists.
         """
         endpoint_params = {"dataset_id": dataset_id}
+        metadata["class_list"] = class_list
         params = {
-            "metadata": metadata,
+            "metadata": json.dumps(metadata),
             "model_name": model_name,
             "model_source": "external",
         }
@@ -799,6 +804,7 @@ def create_diagnosis(
     team_name: Optional[str] = None,
     dataset_id: str,
     model_name: str,
+    class_list: List[str],
     metadata: dict,
 ) -> Diagnosis:
     """
@@ -807,11 +813,13 @@ def create_diagnosis(
     Parameters
     ----------
     dataset_id
-            The ID of the dataset to use for the diagnosis.
+        The ID of the dataset to use for the diagnosis.
     model_name
         The name of the model to diagnose.
+    class_list
+        The list of class names to diagnose.
     metadata
-            The metadata associated with the diagnosis.
+        The metadata associated with the diagnosis.
     access_key
         An access key for request authentication.
         If provided, overrides the configuration.
@@ -833,6 +841,7 @@ def create_diagnosis(
         team_name=team_name,
         dataset_id=dataset_id,
         model_name=model_name,
+        class_list=class_list,
         metadata=metadata,
     )
 
