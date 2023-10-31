@@ -1370,7 +1370,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         ----------
         dataset_id
             The ID of the dataset to add the images to.
-        annotations
+        images
             Newly initialized images to add.
         asynchronous
             Whether to immediately return the job after creating it.
@@ -1389,7 +1389,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         param_images: List[Image] = []
         local_images: List[Image] = []
 
-        for i, image in enumerate(images):
+        for _, image in enumerate(images):
             if isinstance(image.get("source"), ImageSourceLocal):
                 local_images.append(image)
             else:
@@ -1402,7 +1402,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             )
 
         uploaded_param = Job._upload_params(
-            access_key=access_key, team_name=team_name, data=local_images + param_images
+            access_key=access_key, team_name=team_name, data=param_images
         )
 
         job = Job.create(

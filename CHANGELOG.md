@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Model Diagnosis support (sc-2473)
 
+## [1.0.2] - 2023-10-12
+
+### Fixed
+
+- Fixed a duplicate issue for bulk create of local images
+
 ## [1.0.1] - 2023-08-25
 
 ### Fixed
