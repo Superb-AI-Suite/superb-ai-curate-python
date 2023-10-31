@@ -10,6 +10,6 @@ bulk_upload_object_max = 100
 timeout = 300  # seconds
 log_level = None  # Log level options: DEBUG, INFO
 
-from spb_curate import error
+from spb_curate import error  # noqa
 from spb_curate.curate import *  # noqa
-from spb_curate.version import VERSION
+from spb_curate.version import VERSION  # noqa
