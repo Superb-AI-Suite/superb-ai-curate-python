@@ -43,7 +43,7 @@ class Diagnosis(CreateResource, PaginateResource):
         dataset_id: str,
         model_name: str,
         class_list: List[str],
-        metadata: dict = {},
+        metadata: Optional[dict] = None,
     ) -> Diagnosis:
         """
         Creates a diagnosis.
@@ -75,11 +75,18 @@ class Diagnosis(CreateResource, PaginateResource):
             When a diagnosis related to the dataset and model already exists.
         """
         endpoint_params = {"dataset_id": dataset_id}
-        metadata["class_list"] = class_list
-        metadata["beta"] = metadata.get("beta", 1.0)
-        metadata["target_iou"] = metadata.get("target_iou", 0.5)
+        param_metadata = {
+            "beta": 1.0,
+            "class_list": class_list,
+            "target_iou": 0.5,
+        }
+
+        if metadata:
+            param_metadata["beta"] = metadata.get("beta", 1.0)
+            param_metadata["target_iou"] = metadata.get("target_iou", 0.5)
+
         params = {
-            "metadata": json.dumps(metadata),
+            "metadata": json.dumps(param_metadata),
             "model_name": model_name,
             "model_source": "external",
         }
@@ -807,7 +814,7 @@ def create_diagnosis(
     dataset_id: str,
     model_name: str,
     class_list: List[str],
-    metadata: dict,
+    metadata: Optional[dict] = None,
 ) -> Diagnosis:
     """
     Creates a diagnosis.
