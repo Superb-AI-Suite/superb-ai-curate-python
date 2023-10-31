@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import json
 import re
-import time
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
 
@@ -16,7 +13,10 @@ from spb_curate.abstract.api.resource import (
     ModifyResource,
     PaginateResource,
 )
-from spb_curate.abstract.superb_ai_object import SuperbAIObject
+from spb_curate.curate.api import settings
+from spb_curate.curate.api.abstract import BaseImageSource
+from spb_curate.curate.api.enums import JobType, SearchFieldMappingType
+from spb_curate.curate.api.job import Job
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
     BoundingBox,
@@ -27,9 +27,6 @@ from spb_curate.curate.model.annotation_types import (
     Polyline,
     RotatedBox,
 )
-
-FETCH_PAGE_LIMIT = 100
-UPLOAD_IMAGE_FILE_BYTES_MAX = 20000000  # 20MB
 
 
 class Annotation(CreateResource, DeleteResource, ModifyResource):
@@ -81,7 +78,7 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
     ):
         """
         Initializes an annotation.
-        A newly initialized annotation is incomplete must be added to a dataset.
+        A newly initialized annotation is incomplete and must be added to a dataset.
 
         Parameters
         ----------
@@ -158,7 +155,9 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
             if isinstance(k, list):
                 util.validate_argument_list(keys=k, values=v, is_required=is_required)
                 for paired_i in range(len(k)):
-                    self[k[paired_i]] = util.convert_to_superb_ai_object(data=v[paired_i])
+                    self[k[paired_i]] = util.convert_to_superb_ai_object(
+                        data=v[paired_i]
+                    )
             else:
                 util.validate_argument_value(key=k, value=v, is_required=is_required)
                 self[k] = util.convert_to_superb_ai_object(data=v)
@@ -270,7 +269,7 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
             job_type=JobType.ANNOTATION_IMPORT,
             param={
                 "dataset_id": dataset_id,
-                "annotations": {"param_id": uploaded_param["id"]}
+                "annotations": {"param_id": uploaded_param["id"]},
             },
         )
 
@@ -726,7 +725,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
 
         page = 1
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
         def fetch_result(page: int):
             page_result = cls.fetch_page(
@@ -1217,499 +1216,6 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         )
 
 
-class BaseImageSource(SuperbAIObject):
-    def __init__(
-        self,
-        *,
-        type: str,
-        **params,
-    ):
-        super(BaseImageSource, self).__init__(type=type, **params)
-
-        for k, v in iter([("type", type)]):
-            self[k] = util.convert_to_superb_ai_object(data=v)
-
-
-class ImageSourceLocal(BaseImageSource):
-    def __init__(
-        self,
-        *,
-        asset: Union[bytes, str, Path],
-        asset_id: Optional[str] = None,
-        **params,
-    ):
-        """
-        Initializes a local image source.
-
-        Parameters
-        ----------
-        asset
-            The data of the image.
-            Supports byte array, string path, ``Path``object of the image.
-        asset_id
-            The ID of the asset.
-            Should not be explicitly provided.
-        """
-        super(ImageSourceLocal, self).__init__(type="LOCAL", params=params)
-
-        if asset:
-            if isinstance(asset, str) or isinstance(asset, Path):
-                self._asset_path = asset
-            else:
-                self.__set_asset(asset=asset)
-
-            self._upload_url = None
-        else:
-            self.asset_id = asset_id
-
-    def __set_asset(self, *, asset: bytes):
-        self._asset = asset
-        self._asset_size = len(asset)
-
-    def get_asset(self) -> bytes:
-        self.load_asset()
-
-        return getattr(self, "_asset")
-
-    def load_asset(self) -> bytes:
-        if not hasattr(self, "_asset"):
-            if hasattr(self, "_asset_path"):
-                with open(self._asset_path, "rb") as fp:
-                    self.__set_asset(asset=fp.read())
-            else:
-                raise error.ValidationError(
-                    "Local image file path or bytes not supplied."
-                )
-
-        return self._asset
-
-    def unload_asset(self, *, force: bool = True):
-        if hasattr(self, "_asset") and force:
-            delattr(self, "_asset")
-
-    def get_asset_size(self) -> int:
-        if not hasattr(self, "_asset_size"):
-            self.load_asset()
-
-        return self._asset_size
-
-
-class ImageSourceUrl(BaseImageSource):
-    __validator_message = "The URL is invalid: {value}"
-    __validator_regex = re.compile(
-        r"^(?:http|ftp)s?://"  # http:// or https://
-        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
-        r"localhost|"  # localhost...
-        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
-        r"(?::\d+)?"  # optional port
-        r"(?:/?|[/?]\S+)$",
-        re.IGNORECASE,
-    )
-
-    def __init__(self, *, url: str, **params):
-        """
-        Initializes a URL image source.
-
-        Parameters
-        ----------
-        url
-            The URL of the image.
-        """
-        super(ImageSourceUrl, self).__init__(type="URL", params=params)
-        self["url"] = self.__validate(value=url)
-
-    def __validate(self, value: str) -> str:
-        if (
-            not isinstance(value, str)
-            or value == ""
-            or not self.__validator_regex.search(value)
-        ):
-            raise error.ValidationError(self.__validator_message.format(value=value))
-
-        return value
-
-
-class JobType(Enum):
-    """
-    Available types of a job.
-    """
-
-    ANNOTATION_IMPORT = "ANNOTATION_IMPORT"
-    DELETE_IMAGES = "DELETE_IMAGES"
-    IMAGE_IMPORT = "IMAGE_IMPORT"
-    UPDATE_SLICE = "UPDATE_SLICE"
-    UPDATE_SLICE_BY_QUERY = "UPDATE_SLICE_BY_QUERY"
-
-    def __str__(self):
-        return self.value
-
-
-class Job(PaginateResource):
-    _endpoints = {
-        "bulk_create": "/curate/batch/jobs/",
-        "bulk_create_upload": "/curate/batch/params/",
-        "fetch": "/curate/batch/jobs/{id}/",
-        "paginate": "/curate/batch/jobs/",
-    }
-    _object_type = "job"
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        job_type: JobType,
-        param: dict,
-    ) -> Job:
-        """
-        Creates a job.
-
-        Parameters
-        ----------
-        job_type
-            The type of the job to create.
-        param
-            The parameters for the job.
-            Differs by each ``JobType``.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The created job.
-        """
-
-        if not isinstance(job_type, JobType):
-            raise error.ValidationError(f"Invalid job type {job_type}.")
-
-        # Submit the bulk job
-        bulk_params = {"job_type": job_type.value, "param": param}
-        url = cls.get_endpoint(name="bulk_create", params=None)
-
-        return Job._static_request(
-            method_="post",
-            url_=url,
-            access_key=access_key,
-            team_name=team_name,
-            params=bulk_params,
-            headers=None,
-        )
-
-    @classmethod
-    def fetch(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        id: str,
-    ) -> Job:
-        """
-        Fetches a job.
-
-        Parameters
-        ----------
-        id
-            The ID of the job to fetch.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The fetched job.
-        """
-        endpoint_params = {"id": id}
-
-        return super(Job, cls).fetch(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=endpoint_params,
-            headers=None,
-            params=None,
-        )
-
-    @classmethod
-    def fetch_all(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-    ) -> List[Job]:
-        """
-        Fetches jobs that match the date filter.
-        If not provided, fetches all jobs.
-
-        Parameters
-        ----------
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            Matching jobs.
-        """
-        all_jobs = []
-        for page in cls.fetch_page_iter(
-            access_key=access_key,
-            team_name=team_name,
-            from_date=from_date,
-        ):
-            all_jobs.extend(page.get("results", []))
-        return all_jobs
-
-    @classmethod
-    def fetch_all_iter(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-    ) -> Iterator[Job]:
-        """
-        Iterates through jobs that match the date filter.
-        If not provided, iterates through all jobs.
-
-        Parameters
-        ----------
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The matching job iterator.
-
-        Yields
-        -------
-            The next matching job.
-        """
-        for fetch_result in cls.fetch_page_iter(
-            access_key=access_key,
-            team_name=team_name,
-            from_date=from_date,
-        ):
-            for job in fetch_result.get("results", []):
-                yield job
-
-    @classmethod
-    def fetch_page(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-        cursor: Optional[str] = None,
-        limit: int = 10,
-    ) -> Dict[str, Union[int, List[Job]]]:
-        """
-        Fetches a page of jobs that match the date filter.
-        If not provided, paginates all jobs.
-
-        Parameters
-        ----------
-        cursor
-            A cursor for pagination.
-            Pass in `next_cursor` from the previous page to fetch the next page.
-        limit
-            The maximum number of jobs in a page.
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            A page of matching jobs.
-        """
-        params = {"limit": limit}
-
-        if from_date:
-            params.update({"from_date": from_date})
-
-        if cursor:
-            params["cursor"] = cursor
-
-        return super(Job, cls).fetch_page(
-            access_key=access_key,
-            team_name=team_name,
-            endpoint_params=None,
-            headers=None,
-            params=params,
-        )
-
-    @classmethod
-    def fetch_page_iter(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        from_date: Optional[str] = None,
-    ) -> Iterator[Dict[str, Union[int, List[Job]]]]:
-        """
-        Iterates through pages of jobs that match the date filter.
-        If not provided, paginates all jobs.
-
-        Parameters
-        ----------
-        from_date
-            ISO 8601 formatted UTC date string to filter jobs created on or after the specified date.
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-
-        Returns
-        -------
-            The matching job page iterator.
-
-        Yields
-        -------
-            The next page of matching jobs.
-        """
-
-        cursor = None
-        page_result = {}
-        limit = FETCH_PAGE_LIMIT
-
-        def fetch_result(cursor: Optional[str] = None):
-            page_result = cls.fetch_page(
-                access_key=access_key,
-                team_name=team_name,
-                from_date=from_date,
-                cursor=cursor,
-                limit=limit,
-            )
-            return page_result
-
-        page_result = fetch_result(cursor=cursor)
-        yield page_result
-
-        while (
-            len(page_result.get("results", [])) == limit
-            and page_result.get("next_cursor", None) is not None
-        ):
-            page_result = fetch_result(cursor=page_result.get("next_cursor"))
-            yield page_result
-
-    @classmethod
-    def _upload_params(
-        cls,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-        data: Union[dict, list],
-    ) -> dict:
-        # Upload params to S3 bucket
-        params_data = json.dumps(data, cls=cls.ReprJSONEncoder).encode("UTF-8")
-        url = cls.get_endpoint(name="bulk_create_upload", params=None)
-
-        requestor = api_requestor.APIRequestor(
-            access_key=access_key, team_name=team_name
-        )
-        response, access_key = requestor.request(
-            method="post",
-            url=url,
-            params={"file_size": len(params_data)},
-            headers=None,
-        )
-
-        upload_params_dict = util.convert_to_superb_ai_object(
-            data=response, access_key=access_key, team_name=team_name
-        )
-
-        put_params_response = requests.put(
-            upload_params_dict["upload_url"], data=params_data
-        )
-
-        if put_params_response.status_code != 200:
-            raise error.SuperbAIError(
-                "There was an error in uploading the job parameters."
-            )
-
-        return upload_params_dict
-
-    def refresh(
-        self,
-        *,
-        access_key: Optional[str] = None,
-        team_name: Optional[str] = None,
-    ) -> None:
-        """
-        Refreshes the job.
-
-        Parameters
-        ----------
-        access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
-        """
-        endpoint_params = {"id": self.id}
-
-        super(Job, self).refresh(
-            access_key=access_key, team_name=team_name, endpoint_params=endpoint_params
-        )
-
-    def wait_until_complete(self, *, timeout: Optional[int] = None) -> None:
-        """
-        Waits until the job has either completed or failed.
-
-        Parameters
-        ----------
-        timeout
-            The maximum time in seconds to wait for.
-            If not provided, ``spb_curate.timeout`` will be used.
-        """
-        from spb_curate import timeout as default_timeout
-
-        if timeout is None:
-            timeout = default_timeout
-
-        frequency = 2  # seconds
-
-        while True:
-            if self.status in ["FAILED", "COMPLETE"]:
-                break
-
-            wait_seconds = min(timeout, frequency)
-
-            if wait_seconds <= 0:
-                break
-
-            timeout -= frequency
-            time.sleep(wait_seconds)
-
-            self.refresh()
-
-
 class Image(DeleteResource, PaginateResource, ModifyResource):
     _endpoints = {
         "bulk_asset_upload": "/curate/batch/assets/bulk/",
@@ -1824,7 +1330,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         while i < N:
             asset_size = images[i].source.get_asset_size()
 
-            if asset_size > UPLOAD_IMAGE_FILE_BYTES_MAX:
+            if asset_size > settings.UPLOAD_IMAGE_FILE_BYTES_MAX:
                 raise error.ValidationError(
                     f"The image with the key '{images[i].key}' has exceeded the file size "
                     f"limit of 20MB."
@@ -1896,7 +1402,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             )
 
         uploaded_param = Job._upload_params(
-            access_key=access_key, team_name=team_name, data=local_images+param_images
+            access_key=access_key, team_name=team_name, data=local_images + param_images
         )
 
         job = Job.create(
@@ -1905,7 +1411,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             job_type=JobType.IMAGE_IMPORT,
             param={
                 "dataset_id": dataset_id,
-                "images": {"param_id": uploaded_param["id"]}
+                "images": {"param_id": uploaded_param["id"]},
             },
         )
 
@@ -2238,7 +1744,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
         search_after = None
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
         def fetch_result(search_after: Optional[str] = None):
             page_result = cls.fetch_page(
@@ -2407,6 +1913,105 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         )
 
 
+class ImageSourceLocal(BaseImageSource):
+    def __init__(
+        self,
+        *,
+        asset: Union[bytes, str, Path],
+        asset_id: Optional[str] = None,
+        **params,
+    ):
+        """
+        Initializes a local image source.
+
+        Parameters
+        ----------
+        asset
+            The data of the image.
+            Supports byte array, string path, ``Path``object of the image.
+        asset_id
+            The ID of the asset.
+            Should not be explicitly provided.
+        """
+        super(ImageSourceLocal, self).__init__(type="LOCAL", params=params)
+
+        if asset:
+            if isinstance(asset, str) or isinstance(asset, Path):
+                self._asset_path = asset
+            else:
+                self.__set_asset(asset=asset)
+
+            self._upload_url = None
+        else:
+            self.asset_id = asset_id
+
+    def __set_asset(self, *, asset: bytes):
+        self._asset = asset
+        self._asset_size = len(asset)
+
+    def get_asset(self) -> bytes:
+        self.load_asset()
+
+        return getattr(self, "_asset")
+
+    def load_asset(self) -> bytes:
+        if not hasattr(self, "_asset"):
+            if hasattr(self, "_asset_path"):
+                with open(self._asset_path, "rb") as fp:
+                    self.__set_asset(asset=fp.read())
+            else:
+                raise error.ValidationError(
+                    "Local image file path or bytes not supplied."
+                )
+
+        return self._asset
+
+    def unload_asset(self, *, force: bool = True):
+        if hasattr(self, "_asset") and force:
+            delattr(self, "_asset")
+
+    def get_asset_size(self) -> int:
+        if not hasattr(self, "_asset_size"):
+            self.load_asset()
+
+        return self._asset_size
+
+
+class ImageSourceUrl(BaseImageSource):
+    __validator_message = "The URL is invalid: {value}"
+    __validator_regex = re.compile(
+        r"^(?:http|ftp)s?://"  # http:// or https://
+        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
+        r"localhost|"  # localhost...
+        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
+        r"(?::\d+)?"  # optional port
+        r"(?:/?|[/?]\S+)$",
+        re.IGNORECASE,
+    )
+
+    def __init__(self, *, url: str, **params):
+        """
+        Initializes a URL image source.
+
+        Parameters
+        ----------
+        url
+            The URL of the image.
+        """
+        super(ImageSourceUrl, self).__init__(type="URL", params=params)
+        self["url"] = self.__validate(value=url)
+
+    def __validate(self, value: str) -> str:
+        if (
+            not isinstance(value, str)
+            or value == ""
+            or not self.__validator_regex.search(value)
+        ):
+            raise error.ValidationError(self.__validator_message.format(value=value))
+
+        return value
+
+
 class SearchFieldMapping(PaginateResource):
     _endpoints = {
         "paginate": "/curate/dataset-query/datasets/{dataset_id}/search-field-mappings",
@@ -2419,9 +2024,6 @@ class SearchFieldMapping(PaginateResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        endpoint_params: Optional[dict] = None,
-        headers: Optional[dict] = None,
-        params: Optional[dict] = None,
     ) -> SearchFieldMapping:
         """
         Not implemented.
@@ -2614,15 +2216,6 @@ class SearchFieldMapping(PaginateResource):
         Not implemented.
         """
         raise NotImplementedError
-
-
-class SearchFieldMappingType(str, Enum):
-    ANNOTATION_CLASS = "annotations.class_count"
-    ANNOTATION_METADATA = "annotations.metadata"
-    IMAGE_METADATA = "images.metadata"
-
-    def __str__(self):
-        return self.value
 
 
 class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
@@ -2955,7 +2548,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
 
         page = 1
         page_result = {}
-        limit = FETCH_PAGE_LIMIT
+        limit = settings.FETCH_PAGE_LIMIT
 
         def fetch_result(page: int):
             page_result = cls.fetch_page(
@@ -3222,9 +2815,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 job_type=JobType.UPDATE_SLICE,
                 param={
                     "dataset_id": self.dataset_id,
-                    "images": {
-                        "param_id": uploaded_param["id"]
-                    },
+                    "images": {"param_id": uploaded_param["id"]},
                     "slices": {"add": [], "remove": [self.id]},
                 },
             )
@@ -3548,11 +3139,11 @@ def fetch_datasets(
     include_slice_count
         Whether to include the count of slices in the fetched datasets.
     access_key
-            An access key for request authentication.
-            If provided, overrides the configuration.
-        team_name
-            A team name for request authentication.
-            If provided, overrides the configuration.
+        An access key for request authentication.
+        If provided, overrides the configuration.
+    team_name
+        A team name for request authentication.
+        If provided, overrides the configuration.
 
     Returns
     -------
