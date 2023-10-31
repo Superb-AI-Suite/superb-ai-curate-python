@@ -43,7 +43,7 @@ class Diagnosis(CreateResource, PaginateResource):
         dataset_id: str,
         model_name: str,
         class_list: List[str],
-        metadata: dict,
+        metadata: dict = {},
     ) -> Diagnosis:
         """
         Creates a diagnosis.
@@ -76,6 +76,8 @@ class Diagnosis(CreateResource, PaginateResource):
         """
         endpoint_params = {"dataset_id": dataset_id}
         metadata["class_list"] = class_list
+        metadata["beta"] = metadata.get("beta", 1.0)
+        metadata["target_iou"] = metadata.get("target_iou", 0.5)
         params = {
             "metadata": json.dumps(metadata),
             "model_name": model_name,
