@@ -915,8 +915,8 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         slice: Optional[str] = None,
-        include_annotations: bool = False,
-        include_image_url: bool = False,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> List[Image]:
         """
         Fetches images from the dataset that match the provided filters.
@@ -974,8 +974,8 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         slice: Optional[str] = None,
-        include_annotations: bool = False,
-        include_image_url: bool = False,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> Iterator[Image]:
         """
         Iterates through images in the dataset that match the provided filters.
@@ -1460,7 +1460,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         team_name: Optional[str] = None,
         dataset_id: str,
         id: str,
-        include_annotations: Optional[bool] = True,
+        include_annotations: Optional[bool] = False,
     ) -> Image:
         """
         Fetches an image.
@@ -1507,8 +1507,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         slice: Optional[str] = None,
-        include_annotations: Optional[bool] = True,
-        include_image_url: Optional[bool] = True,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> List[Image]:
         """
         Fetches images in a dataset that match the provided filters.
@@ -1571,8 +1571,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         slice: Optional[str] = None,
-        include_annotations: Optional[bool] = True,
-        include_image_url: Optional[bool] = True,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> Iterator[Image]:
         """
         Iterates through images in a dataset that match the provided filters.
@@ -1638,8 +1638,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         slice: Optional[str] = None,
-        include_annotations: Optional[bool] = True,
-        include_image_url: Optional[bool] = True,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
         search_after: Optional[str] = None,
         limit: int = 10,
     ) -> Dict[str, Union[int, List[str], List[Image]]]:
@@ -1727,8 +1727,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         slice: Optional[str] = None,
-        include_annotations: Optional[bool] = True,
-        include_image_url: Optional[bool] = True,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> Iterator[Dict[str, Union[int, List[str], List[Image]]]]:
         """
         Iterates through pages of images from a dataset that match the provided filters.
@@ -2890,8 +2890,8 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         team_name: Optional[str] = None,
         key: Optional[str] = None,
         query: Optional[str] = None,
-        include_annotations: bool = False,
-        include_image_url: bool = False,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> List[Image]:
         """
         Fetches images from the slice that match the provided filters.
@@ -2946,8 +2946,8 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         team_name: Optional[str] = None,
         key: Optional[str] = None,
         query: Optional[str] = None,
-        include_annotations: bool = False,
-        include_image_url: bool = False,
+        include_annotations: Optional[bool] = False,
+        include_image_url: Optional[bool] = False,
     ) -> Iterator[Image]:
         """
         Iterates through images in the slice that match the provided filters.
