@@ -1704,7 +1704,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         if include_image_url:
             expand.append("image_url")
 
-        if len(expand) > 0:
+        if expand:
             params["expand"] = expand
 
         if search_after:
