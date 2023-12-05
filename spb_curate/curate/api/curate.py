@@ -916,6 +916,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         query: Optional[str] = None,
         slice: Optional[str] = None,
         include_annotations: bool = False,
+        include_image_url: bool = False,
     ) -> List[Image]:
         """
         Fetches images from the dataset that match the provided filters.
@@ -932,6 +933,8 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             The name of a slice to fetch images from.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -960,6 +963,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             query=query,
             slice=slice,
             include_annotations=include_annotations,
+            include_image_url=include_image_url,
         )
 
     def fetch_images_iter(
@@ -971,6 +975,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         query: Optional[str] = None,
         slice: Optional[str] = None,
         include_annotations: bool = False,
+        include_image_url: bool = False,
     ) -> Iterator[Image]:
         """
         Iterates through images in the dataset that match the provided filters.
@@ -987,6 +992,8 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             The name of a slice to fetch images from.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -1018,6 +1025,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             query=query,
             slice=slice,
             include_annotations=include_annotations,
+            include_image_url=include_image_url,
         )
 
     def create_slice(
@@ -1463,6 +1471,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             The ID of the dataset with the image to fetch.
         id
             The ID of the image to fetch.
+        include_annotations
+            Whether to include annotations in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -1498,6 +1508,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         query: Optional[str] = None,
         slice: Optional[str] = None,
         include_annotations: Optional[bool] = True,
+        include_image_url: Optional[bool] = True,
     ) -> List[Image]:
         """
         Fetches images in a dataset that match the provided filters.
@@ -1516,6 +1527,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             The name of a slice to fetch images from.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -1543,6 +1556,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             query=query,
             slice=slice,
             include_annotations=include_annotations,
+            include_image_url=include_image_url,
         ):
             all_images.extend(page.get("results", []))
         return all_images
@@ -1558,6 +1572,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         query: Optional[str] = None,
         slice: Optional[str] = None,
         include_annotations: Optional[bool] = True,
+        include_image_url: Optional[bool] = True,
     ) -> Iterator[Image]:
         """
         Iterates through images in a dataset that match the provided filters.
@@ -1576,6 +1591,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             The name of a slice to fetch images from.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -1606,6 +1623,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             query=query,
             slice=slice,
             include_annotations=include_annotations,
+            include_image_url=include_image_url,
         ):
             for image in fetch_result.get("results", []):
                 yield image
@@ -1621,6 +1639,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         query: Optional[str] = None,
         slice: Optional[str] = None,
         include_annotations: Optional[bool] = True,
+        include_image_url: Optional[bool] = True,
         search_after: Optional[str] = None,
         limit: int = 10,
     ) -> Dict[str, Union[int, List[str], List[Image]]]:
@@ -1676,9 +1695,17 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         if slice:
             params["slice"] = slice
 
+        expand = []
+
         # TODO: if other expand parameters are added, fix this
         if include_annotations:
-            params["expand"] = ["annotations"]
+            expand.append("annotations")
+
+        if include_image_url:
+            expand.append("image_url")
+
+        if len(expand) > 0:
+            params["expand"] = expand
 
         if search_after:
             params["search_after"] = [search_after]
@@ -1701,6 +1728,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         query: Optional[str] = None,
         slice: Optional[str] = None,
         include_annotations: Optional[bool] = True,
+        include_image_url: Optional[bool] = True,
     ) -> Iterator[Dict[str, Union[int, List[str], List[Image]]]]:
         """
         Iterates through pages of images from a dataset that match the provided filters.
@@ -1719,6 +1747,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             The name of a slice to fetch images from.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -1755,6 +1785,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
                 query=query,
                 slice=slice,
                 include_annotations=include_annotations,
+                include_image_url=include_image_url,
                 search_after=search_after,
                 limit=limit,
             )
@@ -2860,6 +2891,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         include_annotations: bool = False,
+        include_image_url: bool = False,
     ) -> List[Image]:
         """
         Fetches images from the slice that match the provided filters.
@@ -2874,6 +2906,8 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             A query string to filter the images to fetch.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -2902,6 +2936,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             query=query,
             slice=self.name,
             include_annotations=include_annotations,
+            include_image_url=include_image_url,
         )
 
     def fetch_images_iter(
@@ -2912,6 +2947,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         key: Optional[str] = None,
         query: Optional[str] = None,
         include_annotations: bool = False,
+        include_image_url: bool = False,
     ) -> Iterator[Image]:
         """
         Iterates through images in the slice that match the provided filters.
@@ -2926,6 +2962,8 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             A query string to filter the images to fetch.
         include_annotations
             Whether to include annotations in the fetched images.
+        include_image_url
+            Whether to include the image URL in the fetched images.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -2958,6 +2996,7 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             query=query,
             slice=self.name,
             include_annotations=include_annotations,
+            include_image_url=include_image_url,
         )
 
     def refresh(
