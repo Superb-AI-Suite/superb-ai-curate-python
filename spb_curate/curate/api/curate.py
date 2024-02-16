@@ -29,7 +29,7 @@ from spb_curate.curate.model.annotation_types import (
 )
 
 
-class Annotation(CreateResource, DeleteResource, ModifyResource):
+class Annotation(CreateResource, DeleteResource, ModifyResource, PaginateResource):
     _discriminator_map = {
         "annotation_value": (
             "annotation_type",
@@ -49,6 +49,10 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
         "delete": "/curate/dataset-core/datasets/{dataset_id}/annotations/{id}",
         "fetch": "/curate/dataset-query/datasets/{dataset_id}/images/{image_id}/annotations/{id}",
         "modify": "/curate/dataset-core/datasets/{dataset_id}/annotations/{id}/metadata",
+        "paginate": "/curate/dataset-query/datasets/{dataset_id}/annotations/_search",
+    }
+    _endpoints_method = {
+        "paginate": "post",
     }
     _field_initializers = {"annotation_value": "_init_annotation_value"}
     _object_type = "annotation"
@@ -105,9 +109,11 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
             image_id=image_id,
             image_key=image_key,
             annotation_class=annotation_class,
-            annotation_type=annotation_value._object_type
-            if isinstance(annotation_value, AnnotationType)
-            else annotation_type,
+            annotation_type=(
+                annotation_value._object_type
+                if isinstance(annotation_value, AnnotationType)
+                else annotation_type
+            ),
             annotation_value=annotation_value,
             metadata=metadata,
             **params,
@@ -342,6 +348,288 @@ class Annotation(CreateResource, DeleteResource, ModifyResource):
         return super(Annotation, cls).fetch(
             access_key=access_key, team_name=team_name, endpoint_params=endpoint_params
         )
+
+    @classmethod
+    def fetch_all(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        query: Optional[str] = None,
+        slice: Optional[str] = None,
+        annotation_classes: Optional[List[str]] = None,
+        annotation_types: Optional[List[str]] = None,
+    ) -> List[Annotation]:
+        """
+        Fetches annotations in a dataset that match the provided filters.
+        If filters are not provided, fetches all annotations.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to fetch annotations from.
+        query
+            A query string to filter the annotations to fetch.
+        slice
+            The name of a slice to fetch annotations from.
+        annotation_classes
+            A list of annotation classes to filter the annotations to fetch.
+        annotation_types
+            A list of annotation types to filter the annotations to fetch.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            Matching annotations.
+
+        Raises
+        ------
+        NotFoundError
+            When a dataset with the provided ``dataset_id`` does not exist.
+        QuerySyntaxError
+            When the provided ``query`` is syntactically incorrect.
+        """
+        all_annotations = []
+        for page in cls.fetch_page_iter(
+            access_key=access_key,
+            team_name=team_name,
+            dataset_id=dataset_id,
+            query=query,
+            slice=slice,
+            annotation_classes=annotation_classes,
+            annotation_types=annotation_types,
+        ):
+            all_annotations.extend(page.get("results", []))
+        return all_annotations
+
+    @classmethod
+    def fetch_all_iter(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        query: Optional[str] = None,
+        slice: Optional[str] = None,
+        annotation_classes: Optional[List[str]] = None,
+        annotation_types: Optional[List[str]] = None,
+    ) -> Iterator[Annotation]:
+        """
+        Iterates through annotations in a dataset that match the provided filters.
+        If filters are not provided, iterates through all annotations.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to fetch annotations from.
+        query
+            A query string to filter the annotations to fetch.
+        slice
+            The name of a slice to fetch annotations from.
+        annotation_classes
+            A list of annotation classes to filter the annotations to fetch.
+        annotation_types
+            A list of annotation types to filter the annotations to fetch.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The matching annotation iterator.
+
+        Yields
+        -------
+            The next matching annotation.
+
+        Raises
+        ------
+        NotFoundError
+            When a dataset with the provided ``dataset_id`` does not exist.
+        QuerySyntaxError
+            When the provided ``query`` is syntactically incorrect.
+        """
+        for fetch_result in Annotation.fetch_page_iter(
+            access_key=access_key,
+            team_name=team_name,
+            dataset_id=dataset_id,
+            query=query,
+            slice=slice,
+            annotation_classes=annotation_classes,
+            annotation_types=annotation_types,
+        ):
+            for annotation in fetch_result.get("results", []):
+                yield annotation
+
+    @classmethod
+    def fetch_page(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        query: Optional[str] = None,
+        slice: Optional[str] = None,
+        annotation_classes: Optional[List[str]] = None,
+        annotation_types: Optional[List[str]] = None,
+        search_after: Optional[str] = None,
+        limit: int = 10,
+    ) -> Dict[str, Union[int, List[str], List[Annotation]]]:
+        """
+        Fetches a page of annotations that match the provided filters.
+        If filters are not provided, paginates all annotations.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to fetch annotations from.
+        query
+            A query string to filter the annotations to fetch.
+        slice
+            The name of a slice to fetch annotations from.
+        annotation_classes
+            A list of annotation classes to filter the annotations to fetch.
+        annotation_types
+            A list of annotation types to filter the annotations to fetch.
+        search_after
+            The ID of an annotation to start the search from.
+            If not provided, fetches the first page.
+        limit
+            The maximum number of annotations in a page.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            A page of matching annotations.
+
+        Raises
+        ------
+        NotFoundError
+            When a dataset with the provided ``dataset_id`` does not exist.
+        QuerySyntaxError
+            When the provided ``query`` is syntactically incorrect.
+        """
+        endpoint_params = {"dataset_id": dataset_id}
+        params = {"size": limit}
+
+        if query:
+            params["query"] = query
+
+        if slice:
+            params["slice"] = slice
+
+        if annotation_classes or annotation_types:
+            annotation_filters = {}
+
+            if annotation_classes:
+                annotation_filters["annotation_class_in"] = annotation_classes
+
+            if annotation_types:
+                annotation_filters["annotation_type_in"] = annotation_types
+
+            params["annotation_filters"] = annotation_filters
+
+        if search_after:
+            params["search_after"] = [search_after]
+
+        return super(Annotation, cls).fetch_page(
+            access_key=access_key,
+            team_name=team_name,
+            endpoint_params=endpoint_params,
+            params=params,
+        )
+
+    @classmethod
+    def fetch_page_iter(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        query: Optional[str] = None,
+        slice: Optional[str] = None,
+        annotation_classes: Optional[List[str]] = None,
+        annotation_types: Optional[List[str]] = None,
+    ) -> Iterator[Dict[str, Union[int, List[str], List[Annotation]]]]:
+        """
+        Iterates through pages of annotations from a dataset that match the provided
+        filters. If filters are not provided, paginates all annotations.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to fetch annotations from.
+        query
+            A query string to filter the annotations to fetch.
+        slice
+            The name of a slice to fetch annotations from.
+        annotation_classes
+            A list of annotation classes to filter the annotations to fetch.
+        annotation_types
+            A list of annotation types to filter the annotations to fetch.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The matching annotation page iterator.
+
+        Yields
+        -------
+            The next page of matching annotations.
+
+        Raises
+        ------
+        NotFoundError
+            When a dataset with the provided ``dataset_id`` does not exist.
+        QuerySyntaxError
+            When the provided ``query`` is syntactically incorrect.
+        """
+
+        search_after = None
+        page_result = {}
+        limit = settings.FETCH_PAGE_LIMIT
+
+        def fetch_result(search_after: Optional[str] = None):
+            page_result = cls.fetch_page(
+                access_key=access_key,
+                team_name=team_name,
+                dataset_id=dataset_id,
+                query=query,
+                slice=slice,
+                annotation_classes=annotation_classes,
+                annotation_types=annotation_types,
+                search_after=search_after,
+                limit=limit,
+            )
+            return page_result
+
+        page_result = fetch_result(search_after=search_after)
+        yield page_result
+
+        while len(page_result.get("results", [])) == limit and page_result.get(
+            "last", []
+        ):
+            page_result = fetch_result(search_after=page_result.get("last")[0])
+            yield page_result
 
     def refresh(
         self,
