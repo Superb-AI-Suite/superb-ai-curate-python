@@ -31,7 +31,7 @@ def credentials():
         "access_key": access_key,
         "api_base": f"https://{uuid.uuid4()}.superb-ai.com",
         "headers": {
-            f"Authorization": f"Basic {base64.b64encode(f'{team_name}:{access_key}'.encode('utf-8')).decode('utf-8')}"
+            "Authorization": f"Basic {base64.b64encode(f'{team_name}:{access_key}'.encode('utf-8')).decode('utf-8')}"
         },
     }
 
@@ -156,7 +156,7 @@ class TestApiRequestor(object):
         except APIError:
             pass
         else:
-            raise Exception(f"The bad response did not raise an exception")
+            raise Exception("The bad response did not raise an exception")
 
         ok_response = requestor.interpret_response(
             rbody=ok_empty_response["rbody"],
@@ -168,7 +168,7 @@ class TestApiRequestor(object):
         assert ok_response.code == ok_empty_response["rcode"]
         assert ok_response.headers == ok_empty_response["rheaders"]
         assert ok_response.body == ok_empty_response["rbody"]
-        assert ok_response.data == None
+        assert ok_response.data is None
 
         ok_json_response = requestor.interpret_response(
             rbody=ok_json_response["rbody"],

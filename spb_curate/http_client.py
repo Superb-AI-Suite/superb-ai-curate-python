@@ -2,6 +2,7 @@ import textwrap
 import threading
 
 import requests
+from requests.adapters import HTTPAdapter, Retry
 
 from spb_curate import error
 
@@ -27,7 +28,26 @@ class RequestsClient(object):
         kwargs = {}
 
         if getattr(self._thread_local, "session", None) is None:
-            self._thread_local.session = self._session or requests.Session()
+            if self._session is None:
+                self._session = requests.Session()
+                allowed_methods = list(Retry.DEFAULT_ALLOWED_METHODS) + [
+                    "POST",
+                    "PATCH",
+                ]
+                retry_count = 2
+                retries = Retry(
+                    total=retry_count,
+                    read=retry_count,
+                    connect=retry_count,
+                    backoff_factor=1,
+                    status_forcelist=(500, 502, 503, 504),
+                    allowed_methods=allowed_methods,
+                )
+                adapter = HTTPAdapter(max_retries=retries)
+                self._session.mount("http://", adapter)
+                self._session.mount("https://", adapter)
+
+            self._thread_local.session = self._session
 
         try:
             try:
@@ -58,12 +78,11 @@ class RequestsClient(object):
         return content, status_code, result.headers
 
     def _handle_request_error(self, e):
-
         # Catch SSL error first as it belongs to ConnectionError,
         # but we don't want to retry
         if isinstance(e, requests.exceptions.SSLError):
             msg = (
-                "Could not verify Superb AI's SSL certificate.  Please make "
+                "Could not verify Superb AI's SSL certificate. Please make "
                 "sure that your network is not intercepting certificates."
             )
             err = "%s: %s" % (type(e).__name__, str(e))
@@ -76,6 +95,11 @@ class RequestsClient(object):
             msg = "Unexpected error communicating with Superb AI."
             err = "%s: %s" % (type(e).__name__, str(e))
             should_retry = True
+        # Reached maximum retry attempts
+        elif isinstance(e, requests.exceptions.RetryError):
+            msg = "Unexpected error communicating with Superb AI."
+            err = "%s: %s" % (type(e).__name__, str(e))
+            should_retry = False
         # Catch remaining request exceptions
         elif isinstance(e, requests.exceptions.RequestException):
             msg = "Unexpected error communicating with Superb AI."

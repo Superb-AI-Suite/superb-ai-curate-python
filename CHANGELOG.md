@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2024-03-19
+
+### Fixed
+
+- Parsing logic for non-specified http response codes
+- Override default retry logic to include POST requests
+
+## [1.2.0] - 2024-02-16
+
 ### Added
 
 - Annotation pagination with filtering
