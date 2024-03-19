@@ -7,7 +7,12 @@ class SuperbAIResponse(object):
         self.code = code
         self.headers = headers
         self.body = body
-        self.data = json.loads(body, object_pairs_hook=OrderedDict) if body else None
+        try:
+            self.data = (
+                json.loads(body, object_pairs_hook=OrderedDict) if body else None
+            )
+        except json.JSONDecodeError:
+            self.data = str(body) or None
 
     @property
     def idempotency_key(self):
