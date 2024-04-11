@@ -2998,11 +2998,12 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 job_type=JobType.UPDATE_SLICE_BY_QUERY,
                 param={
                     "dataset_id": self.dataset_id,
-                    "images": {
+                    "image_filters": {
                         "slice": None,
                         "query": query,
                     },
-                    "slices": {"add": [self.id], "remove": []},
+                    "slice_id": self.id,
+                    "remove": False,
                 },
             )
         else:
@@ -3036,7 +3037,8 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                     "images": {
                         "param_id": uploaded_param["id"],
                     },
-                    "slices": {"add": [self.id], "remove": []},
+                    "slice_id": self.id,
+                    "remove": False,
                 },
             )
 
@@ -3099,11 +3101,12 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 job_type=JobType.UPDATE_SLICE_BY_QUERY,
                 param={
                     "dataset_id": self.dataset_id,
-                    "images": {
+                    "image_filters": {
                         "slice": None,
                         "query": query,
                     },
-                    "slices": {"add": [], "remove": [self.id]},
+                    "slice_id": self.id,
+                    "remove": True,
                 },
             )
         else:
@@ -3135,7 +3138,8 @@ class Slice(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 param={
                     "dataset_id": self.dataset_id,
                     "images": {"param_id": uploaded_param["id"]},
-                    "slices": {"add": [], "remove": [self.id]},
+                    "slice_id": self.id,
+                    "remove": True,
                 },
             )
 

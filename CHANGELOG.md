@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2024-04-11
+
+### Fixed
+
+- Fixed outdated parameters for update slice and update slice by query
+
 ## [1.2.1] - 2024-03-19
 
 ### Fixed
