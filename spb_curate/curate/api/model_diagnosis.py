@@ -13,7 +13,7 @@ from spb_curate.abstract.api.resource import (
 from spb_curate.abstract.superb_ai_object import SuperbAIObject
 from spb_curate.curate.api import settings
 from spb_curate.curate.api.curate import Job
-from spb_curate.curate.api.enums import JobType
+from spb_curate.curate.api.enums import JobType, Split
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
     BoundingBox,
@@ -318,6 +318,7 @@ class Diagnosis(CreateResource, PaginateResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         predictions: List[Prediction],
+        split: Split = Split.VAL,
         asynchronous: bool = True,
     ) -> Job:
         """
@@ -327,6 +328,8 @@ class Diagnosis(CreateResource, PaginateResource):
         ----------
         predictions
             Newly initialized predictions to add.
+        split
+            The subset data type used for training the model.
         asynchronous
             Whether to immediately return the job after creating it.
             If set to ``False``, the function waits for the job to finish before returning.
@@ -347,6 +350,7 @@ class Diagnosis(CreateResource, PaginateResource):
             dataset_id=self.dataset_id,
             diagnosis_id=self.id,
             predictions=predictions,
+            split=split,
             asynchronous=asynchronous,
         )
 
@@ -661,9 +665,11 @@ class Prediction(SuperbAIObject):
             image_id=image_id,
             prediction_class=prediction_class,
             prediction_value=prediction_value,
-            prediction_type=prediction_value._object_type
-            if isinstance(prediction_value, AnnotationType)
-            else prediction_type,
+            prediction_type=(
+                prediction_value._object_type
+                if isinstance(prediction_value, AnnotationType)
+                else prediction_type
+            ),
             **params,
         )
 
@@ -750,6 +756,7 @@ class Prediction(SuperbAIObject):
         dataset_id: str,
         diagnosis_id: str,
         predictions: List[Prediction],
+        split: Split = Split.VAL,
         asynchronous: bool = True,
     ) -> Job:
         """
@@ -763,6 +770,8 @@ class Prediction(SuperbAIObject):
             The ID of the diagnosis to add the predictions to.
         predictions
             Newly initialized predictions to add.
+        split
+            The subset data type used for training the model.
         asynchronous
             Whether to immediately return the job after creating it.
             If set to ``False``, the function waits for the job to finish before returning.
@@ -798,6 +807,7 @@ class Prediction(SuperbAIObject):
                 "dataset_id": dataset_id,
                 "diagnosis_id": diagnosis_id,
                 "predictions": {"param_id": uploaded_param["id"]},
+                "split": split,
             },
         )
 

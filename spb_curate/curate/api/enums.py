@@ -17,6 +17,11 @@ class JobType(Enum):
         return self.value
 
 
+class Split(str, Enum):
+    TRAIN = "TRAIN"
+    VAL = "VAL"
+
+
 class SearchFieldMappingType(str, Enum):
     ANNOTATION_CLASS = "annotations.class_count"
     ANNOTATION_METADATA = "annotations.metadata"
