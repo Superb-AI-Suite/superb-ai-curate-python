@@ -13,7 +13,7 @@ from spb_curate.abstract.api.resource import (
 from spb_curate.abstract.superb_ai_object import SuperbAIObject
 from spb_curate.curate.api import settings
 from spb_curate.curate.api.curate import Job
-from spb_curate.curate.api.enums import JobType, Split
+from spb_curate.curate.api.enums import IouType, JobType, Split
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
     BoundingBox,
@@ -43,7 +43,8 @@ class Diagnosis(CreateResource, PaginateResource):
         dataset_id: str,
         model_name: str,
         class_list: List[str],
-        metadata: Optional[dict] = None,
+        iou_type: IouType,
+        metadata: Optional[Dict[str, Union[int, float, decimal.Decimal]]] = None,
     ) -> Diagnosis:
         """
         Creates a diagnosis.
@@ -56,8 +57,11 @@ class Diagnosis(CreateResource, PaginateResource):
             The name of the model to diagnose.
         class_list
             The list of class names to diagnose.
+        iou_type
+            The iou type of the diagnosis.
         metadata
             The metadata associated with the diagnosis.
+            Supported fields: ``beta``, ``target_iou``.
         access_key
             An access key for request authentication.
             If provided, overrides the configuration.
@@ -78,6 +82,7 @@ class Diagnosis(CreateResource, PaginateResource):
         param_metadata = {
             "beta": 1.0,
             "class_list": class_list,
+            "iou_type": iou_type,
             "target_iou": 0.5,
         }
 
@@ -824,7 +829,8 @@ def create_diagnosis(
     dataset_id: str,
     model_name: str,
     class_list: List[str],
-    metadata: Optional[dict] = None,
+    iou_type: IouType,
+    metadata: Optional[Dict[str, Union[int, float, decimal.Decimal]]] = None,
 ) -> Diagnosis:
     """
     Creates a diagnosis.
@@ -837,8 +843,11 @@ def create_diagnosis(
         The name of the model to diagnose.
     class_list
         The list of class names to diagnose.
+    iou_type
+        The iou type of the diagnosis.
     metadata
         The metadata associated with the diagnosis.
+        Supported fields: ``beta``, ``target_iou``.
     access_key
         An access key for request authentication.
         If provided, overrides the configuration.
@@ -861,6 +870,7 @@ def create_diagnosis(
         dataset_id=dataset_id,
         model_name=model_name,
         class_list=class_list,
+        iou_type=iou_type,
         metadata=metadata,
     )
 

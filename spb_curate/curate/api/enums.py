@@ -1,6 +1,15 @@
 from enum import Enum
 
 
+class IouType(str, Enum):
+    """
+    Types of Iou.
+    """
+
+    BOX = "bbox"
+    POLYGON = "segm"
+
+
 class JobType(Enum):
     """
     Available types of a job.
@@ -18,6 +27,10 @@ class JobType(Enum):
 
 
 class Split(str, Enum):
+    """
+    Types of Split.
+    """
+
     TRAIN = "TRAIN"
     VAL = "VAL"
 
