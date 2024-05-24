@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added train/val split to the prediction upload (sc-3156)
+- Diagnosis metadata docstring clarification (sc-3156)
 
 ## [1.2.2] - 2024-04-11
 
