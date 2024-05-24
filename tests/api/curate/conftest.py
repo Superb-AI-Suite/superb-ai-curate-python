@@ -1,4 +1,5 @@
 import pathlib
+import random
 import uuid
 from typing import List
 
@@ -6,20 +7,42 @@ import pytest
 
 
 @pytest.fixture(scope="module")
+def image_id() -> str:
+    return f"im_{str(uuid.uuid4())}"
+
+
+@pytest.fixture(scope="module")
 def image_key() -> str:
     return f"some-image-key-{str(uuid.uuid4())}"
 
 
+@pytest.fixture(scope="module")
+def prediction_confidence() -> float:
+    return random.random()
+
+
 @pytest.fixture(scope="function", autouse=True)
-def annotation(image_key: str, bounding_box: dict) -> dict:
+def annotation(image_id: str, image_key: str, bounding_box: dict) -> dict:
     return {
         "_object_type": "annotation",
-        "image_id": "example_image_id",
+        "image_id": image_id,
         "image_key": image_key,
         "annotation_class": "annotation_class",
         "annotation_type": "box",
         "annotation_value": bounding_box,
         "metadata": {},
+    }
+
+
+@pytest.fixture(scope="function", autouse=True)
+def prediction(image_id: str, prediction_confidence: float, bounding_box: dict) -> dict:
+    return {
+        "_object_type": "predprediction_confidence,iction",
+        "confidence": prediction_confidence,
+        "image_id": image_id,
+        "prediction_class": "prediction_class",
+        "prediction_type": "box",
+        "prediction_value": bounding_box,
     }
 
 
