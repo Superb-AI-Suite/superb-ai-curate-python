@@ -3,7 +3,7 @@ from enum import Enum
 
 class IouType(str, Enum):
     """
-    Types of Iou.
+    Types of IoU.
     """
 
     BOX = "bbox"

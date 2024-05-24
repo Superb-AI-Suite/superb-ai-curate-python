@@ -58,7 +58,7 @@ class Diagnosis(CreateResource, PaginateResource):
         class_list
             The list of class names to diagnose.
         iou_type
-            The iou type of the diagnosis.
+            The IoU type of the diagnosis.
         metadata
             The metadata associated with the diagnosis.
             Supported fields: ``beta``, ``target_iou``.
