@@ -1,6 +1,15 @@
 from enum import Enum
 
 
+class IouType(str, Enum):
+    """
+    Types of IoU.
+    """
+
+    BOX = "bbox"
+    POLYGON = "segm"
+
+
 class JobType(Enum):
     """
     Available types of a job.
@@ -15,6 +24,15 @@ class JobType(Enum):
 
     def __str__(self):
         return self.value
+
+
+class Split(str, Enum):
+    """
+    Types of Split.
+    """
+
+    TRAIN = "TRAIN"
+    VAL = "VAL"
 
 
 class SearchFieldMappingType(str, Enum):
