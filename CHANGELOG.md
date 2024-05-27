@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2024-05-27
+
+### Fixed
+
+- Fixed an issue where iou_type for creating a diagnosis was not being passed properly
+
 ## [1.3.0] - 2024-05-24
 
 ### Added
