@@ -82,7 +82,6 @@ class Diagnosis(CreateResource, PaginateResource):
         param_metadata = {
             "beta": 1.0,
             "class_list": class_list,
-            "iou_type": iou_type,
             "target_iou": 0.5,
         }
 
@@ -92,6 +91,7 @@ class Diagnosis(CreateResource, PaginateResource):
 
         params = {
             "metadata": json.dumps(param_metadata),
+            "iou_type": iou_type,
             "model_name": model_name,
             "model_source": "external",
         }
