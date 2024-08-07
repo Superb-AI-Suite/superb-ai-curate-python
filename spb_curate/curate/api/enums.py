@@ -42,3 +42,12 @@ class SearchFieldMappingType(str, Enum):
 
     def __str__(self):
         return self.value
+
+
+class SupportedImageFormat(str, Enum):
+    BMP = "BMP"
+    JPG = "JPG"
+    JPEG = "JPEG"
+    PNG = "PNG"
+    MPO = "MPO"
+    WEBP = "WEBP"
