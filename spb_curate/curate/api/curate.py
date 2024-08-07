@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
@@ -15,7 +16,11 @@ from spb_curate.abstract.api.resource import (
 )
 from spb_curate.curate.api import settings
 from spb_curate.curate.api.abstract import BaseImageSource
-from spb_curate.curate.api.enums import JobType, SearchFieldMappingType
+from spb_curate.curate.api.enums import (
+    JobType,
+    SearchFieldMappingType,
+    SupportedImageFormat,
+)
 from spb_curate.curate.api.job import Job
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
@@ -710,6 +715,9 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         "modify": "patch",
     }
     _object_type = "dataset"
+    _supported_image_extensions = [
+        format.value.lower() for format in SupportedImageFormat
+    ]
 
     @classmethod
     def fetch(
@@ -1510,6 +1518,59 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             endpoint_params=endpoint_params,
             params=params,
         )
+
+    def upload_image_directory(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        directory_path: Union[str, Path],
+        recursive: bool = True,
+        asynchronous: bool = True,
+    ) -> Job:
+        if isinstance(directory_path, str):
+            directory_path = Path(directory_path)
+
+        if not directory_path.is_dir():
+            raise error.ValidationError("The provided path is not a valid directory.")
+
+        if recursive:
+            file_iterator = directory_path.rglob("*")
+        else:
+            file_iterator = directory_path.glob("*")
+
+        images: List[Image] = []
+
+        for file_path in file_iterator:
+            if file_path.is_file():
+                file_extension = file_path.suffix.lower().lstrip(".")
+
+                if file_extension in self._supported_image_extensions:
+                    image_key = str(os.path.relpath(file_path, directory_path))
+
+                    if len(image_key) > 255:
+                        raise error.ValidationError(
+                            f"Automatically generated image key {image_key}"
+                            " exceeds the 255 characters limit."
+                        )
+
+                    images.append(
+                        Image(
+                            key=image_key,
+                            source=ImageSourceLocal(asset=file_path),
+                            metadata={},
+                        )
+                    )
+
+        if images:
+            return self.add_images(
+                access_key=access_key,
+                team_name=team_name,
+                images=images,
+                asynchronous=asynchronous,
+            )
+
+        raise error.ValidationError("There are no image files in the given directory.")
 
 
 class Image(DeleteResource, PaginateResource, ModifyResource):
