@@ -1528,6 +1528,31 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         recursive: bool = True,
         asynchronous: bool = True,
     ) -> Job:
+        """
+        Creates a job that uploads image files in the given directory.
+
+        Parameters
+        ----------
+        directory_path
+            The path of the directory to search for image files to upload.
+            Supports a string path or a ``Path`` object that points to the directory.
+        recursive
+            Whether to recursively search through the given directory.
+            If set to ``True``, the function searches through nested directories.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
         if isinstance(directory_path, str):
             directory_path = Path(directory_path)
 
