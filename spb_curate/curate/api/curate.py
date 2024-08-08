@@ -1573,10 +1573,10 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 if file_extension in self._supported_image_extensions:
                     image_key = str(os.path.relpath(file_path, directory_path))
 
-                    if len(image_key) > 255:
+                    if len(image_key) > settings.MAX_IMAGE_KEY_LENGTH:
                         raise error.ValidationError(
-                            f"Automatically generated image key {image_key}"
-                            " exceeds the 255 characters limit."
+                            f"Automatically generated image key {image_key} exceeds"
+                            f" the {settings.MAX_IMAGE_KEY_LENGTH} characters limit."
                         )
 
                     images.append(
