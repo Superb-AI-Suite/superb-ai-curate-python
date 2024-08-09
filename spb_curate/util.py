@@ -185,3 +185,13 @@ def validate_arguments_require_one(
         raise error.ValidationError(
             f"At least one of fields {error_message} is required"
         )
+
+
+def is_running_in_notebook() -> bool:
+    try:
+        get_ipython = __import__("IPython").get_ipython
+        if "IPKernelApp" not in get_ipython().config:
+            return False
+        return True
+    except ImportError:
+        return False
