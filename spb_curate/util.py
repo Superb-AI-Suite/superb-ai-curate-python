@@ -193,5 +193,5 @@ def is_running_in_notebook() -> bool:
         if "IPKernelApp" not in get_ipython().config:
             return False
         return True
-    except ImportError:
+    except (AttributeError, ImportError):
         return False

@@ -1677,18 +1677,15 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
         if util.is_running_in_notebook():
             # In Jupyter Notebook, we check if the event loop is running
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Schedule the coroutine to run in the existing event loop
-                # TODO: Make this work in Jupyter Notebook
-                task = loop.create_task(async_fn)
-                return loop.run_until_complete(task)
-            else:
-                # Run the coroutine in a new event loop
-                return loop.run_until_complete(async_fn)
-        else:
-            # Standard script execution
-            return asyncio.run(async_fn)
+            try:
+                import nest_asyncio
+            except ImportError:
+                raise error.DependencyError(
+                    "When running in Jupyter Notebook, `nest_asyncio` is required."
+                )
+
+            nest_asyncio.apply()
+        return asyncio.run(async_fn)
 
     @classmethod
     def create_bulk(
