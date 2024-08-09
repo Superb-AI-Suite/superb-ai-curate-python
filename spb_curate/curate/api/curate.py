@@ -715,9 +715,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         "modify": "patch",
     }
     _object_type = "dataset"
-    _supported_image_extensions = [
-        format.value.lower() for format in SupportedImageFormat
-    ]
+    _supported_image_extensions = SupportedImageFormat.__members__
 
     @classmethod
     def fetch(
@@ -1519,7 +1517,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             params=params,
         )
 
-    def upload_image_directory(
+    def upload_images_from_directory(
         self,
         *,
         access_key: Optional[str] = None,
@@ -1568,7 +1566,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
 
         for file_path in file_iterator:
             if file_path.is_file():
-                file_extension = file_path.suffix.lower().lstrip(".")
+                file_extension = file_path.suffix.upper().lstrip(".")
 
                 if file_extension in self._supported_image_extensions:
                     image_key = str(os.path.relpath(file_path, directory_path))
