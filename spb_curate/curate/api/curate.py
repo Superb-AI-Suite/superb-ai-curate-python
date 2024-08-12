@@ -1738,6 +1738,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
                 # Run all tasks concurrently
                 await asyncio.gather(*tasks)
 
+                util.log_info(f"Uploading local images: {i + 1} of {N}")
+
                 total_transfer_size = 0
                 file_sizes = []
                 last_i = i + 1
