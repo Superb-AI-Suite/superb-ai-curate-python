@@ -261,7 +261,7 @@ class TestImageSource(object):
 
         image_source_dict = dict(image_source_instance)
 
-        assert image_source_dict["type"] is "URL"
+        assert image_source_dict["type"] == "URL"
         assert image_source_dict["url"] is image_source_url["source"]["url"]
 
         for url in image_source_urls_valid:
@@ -271,17 +271,18 @@ class TestImageSource(object):
             with pytest.raises(error.ValidationError):
                 ImageSourceUrl(url=url)
 
-    def test_image_source_local(self, image_source_local):
+    @pytest.mark.asyncio
+    async def test_image_source_local(self, image_source_local):
         image_source_path_instance = ImageSourceLocal(
             asset=image_source_local["source"]["path"]
         )
 
         assert isinstance(image_source_path_instance, ImageSourceLocal)
-        assert isinstance(image_source_path_instance.get_asset(), bytes)
+        assert isinstance(await image_source_path_instance.get_asset(), bytes)
 
         image_source_asset_dict = dict(image_source_path_instance)
 
-        assert image_source_asset_dict["type"] is "LOCAL"
+        assert image_source_asset_dict["type"] == "LOCAL"
         assert (
             image_source_path_instance.get_asset_size()
             == image_source_local["source"]["file_size"]

@@ -55,6 +55,7 @@ black = { version = "*", optional = true }
 coveralls = { version = "*", optional = true }
 isort = { version = "*", optional = true }
 pytest = { version = "*", optional = true }
+pytest-asyncio = { version = "*", optional = true }
 pytest-cov = { version = "*", optional = true }
 
 # Docs
@@ -63,9 +64,10 @@ sphinxcontrib-napoleon = { version = "*", optional = true }
 sphinx-autodoc-typehints = { version = "^1.19.4", optional = true }
 sphinx-pyproject = { version = "*", optional = true }
 sphinx-rtd-theme = { version = "*", optional = true }
+aiohttp = ">=3.8.0,<3.9.0"
 
 [tool.poetry.extras]
-dev = ["black", "coveralls", "isort", "pytest", "pytest-cov"]
+dev = ["black", "coveralls", "isort", "pytest", "pytest-asyncio", "pytest-cov"]
 docs = [
   "Sphinx",
   "sphinxcontrib-napoleon",
