@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Upload local images asynchronously (sc-3366)
+- Retry local image upload on failure (sc-3366)
 
 ---
 
