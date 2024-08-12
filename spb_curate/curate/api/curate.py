@@ -17,7 +17,11 @@ from spb_curate.abstract.api.resource import (
 )
 from spb_curate.curate.api import settings
 from spb_curate.curate.api.abstract import BaseImageSource
-from spb_curate.curate.api.enums import JobType, SearchFieldMappingType
+from spb_curate.curate.api.enums import (
+    JobType,
+    SearchFieldMappingType,
+    SupportedImageFormat,
+)
 from spb_curate.curate.api.job import Job
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
@@ -712,6 +716,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         "modify": "patch",
     }
     _object_type = "dataset"
+    _supported_image_extensions = SupportedImageFormat.__members__
 
     @classmethod
     def fetch(
@@ -1512,6 +1517,84 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             endpoint_params=endpoint_params,
             params=params,
         )
+
+    def upload_images_from_directory(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        directory_path: Union[str, Path],
+        recursive: bool = True,
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that uploads image files in the given directory.
+
+        Parameters
+        ----------
+        directory_path
+            The path of the directory to search for image files to upload.
+            Supports a string path or a ``Path`` object that points to the directory.
+        recursive
+            Whether to recursively search through the given directory.
+            If set to ``True``, the function searches through nested directories.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        if isinstance(directory_path, str):
+            directory_path = Path(directory_path)
+
+        if not directory_path.is_dir():
+            raise error.ValidationError("The provided path is not a valid directory.")
+
+        if recursive:
+            file_iterator = directory_path.rglob("*")
+        else:
+            file_iterator = directory_path.glob("*")
+
+        images: List[Image] = []
+
+        for file_path in file_iterator:
+            if file_path.is_file():
+                file_extension = file_path.suffix.upper().lstrip(".")
+
+                if file_extension in self._supported_image_extensions:
+                    image_key = str(os.path.relpath(file_path, directory_path))
+
+                    if len(image_key) > settings.MAX_IMAGE_KEY_LENGTH:
+                        raise error.ValidationError(
+                            f"Automatically generated image key {image_key} exceeds"
+                            f" the {settings.MAX_IMAGE_KEY_LENGTH} characters limit."
+                        )
+
+                    images.append(
+                        Image(
+                            key=image_key,
+                            source=ImageSourceLocal(asset=file_path),
+                            metadata={},
+                        )
+                    )
+
+        if images:
+            return self.add_images(
+                access_key=access_key,
+                team_name=team_name,
+                images=images,
+                asynchronous=asynchronous,
+            )
+
+        raise error.ValidationError("There are no image files in the given directory.")
 
 
 class Image(DeleteResource, PaginateResource, ModifyResource):
