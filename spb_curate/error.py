@@ -113,5 +113,9 @@ class TooManyRequestsError(SuperbAIError):
 # -- SDK ERRORS --
 
 
+class DependencyError(Exception):
+    pass
+
+
 class ValidationError(Exception):
     pass
