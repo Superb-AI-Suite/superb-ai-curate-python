@@ -8,7 +8,7 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 
 import aiohttp
 
-from spb_curate import api_requestor, error, util
+from spb_curate import api_requestor, error, http_client, util
 from spb_curate.abstract.api.resource import (
     CreateResource,
     DeleteResource,
@@ -1575,12 +1575,43 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
     @classmethod
     async def __upload_asset(cls, *, key: str, source: ImageSourceLocal, url: str):
-        async with aiohttp.ClientSession() as session:
-            async with session.put(url, data=await source.get_asset()) as response:
-                if response.status != 200:
-                    raise error.SuperbAIError(
-                        "There was an error in uploading the local file of the image "
-                        f"with the key '{key}'."
+        attempt = 0
+
+        while attempt < http_client.MAX_RETRY_COUNT:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.put(
+                        url, data=await source.get_asset()
+                    ) as response:
+                        if response.status == 200:
+                            return
+                        elif response.status in http_client.STATUS_FORCE_SET:
+                            attempt += 1
+                            if attempt < http_client.MAX_RETRY_COUNT:
+                                await asyncio.sleep(
+                                    http_client.calculate_backoff(attempt=attempt)
+                                )
+                            else:
+                                raise error.RetryableError(
+                                    f"Failed to upload after "
+                                    f"{http_client.MAX_RETRY_COUNT} attempts. "
+                                    f"Status code: {response.status}"
+                                )
+
+                        else:
+                            raise error.SuperbAIError(
+                                "There was an error in uploading the local file of the "
+                                f"image with the key '{key}'."
+                                f"Status code: {response.status}"
+                            )
+            except aiohttp.ClientError as e:
+                attempt += 1
+                if attempt < http_client.MAX_RETRY_COUNT:
+                    await asyncio.sleep(http_client.calculate_backoff(attempt=attempt))
+                else:
+                    raise error.RetryableError(
+                        f"Failed to upload after {http_client.MAX_RETRY_COUNT} "
+                        f"attempts due to a network error: {str(e)}"
                     )
 
     @classmethod

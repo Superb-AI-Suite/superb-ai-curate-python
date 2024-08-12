@@ -104,6 +104,10 @@ class NotFoundError(SuperbAIError):
     pass
 
 
+class RetryableError(SuperbAIError):
+    pass
+
+
 class TooManyRequestsError(SuperbAIError):
     """HTTP CODE: 429"""
 

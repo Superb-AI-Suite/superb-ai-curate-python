@@ -6,6 +6,15 @@ from requests.adapters import HTTPAdapter, Retry
 
 from spb_curate import error
 
+BACKOFF_FACTOR = 1
+MAX_RETRY_COUNT = 2
+STATUS_FORCE_LIST = (500, 502, 503, 504)
+STATUS_FORCE_SET = {x for x in STATUS_FORCE_LIST}
+
+
+def calculate_backoff(attempt: int, factor: int = BACKOFF_FACTOR) -> int:
+    return factor * (2 ** (attempt - 1))
+
 
 class RequestsClient(object):
     name = "requests"
@@ -34,13 +43,12 @@ class RequestsClient(object):
                     "POST",
                     "PATCH",
                 ]
-                retry_count = 2
                 retries = Retry(
-                    total=retry_count,
-                    read=retry_count,
-                    connect=retry_count,
-                    backoff_factor=1,
-                    status_forcelist=(500, 502, 503, 504),
+                    total=MAX_RETRY_COUNT,
+                    read=MAX_RETRY_COUNT,
+                    connect=MAX_RETRY_COUNT,
+                    backoff_factor=BACKOFF_FACTOR,
+                    status_forcelist=STATUS_FORCE_LIST,
                     allowed_methods=allowed_methods,
                 )
                 adapter = HTTPAdapter(max_retries=retries)
