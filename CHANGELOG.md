@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upload local images asynchronously (sc-3366)
 - Retry local image upload on failure (sc-3366)
 
----
 
 ## [1.3.1] - 2024-05-27
 
