@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2024-08-13
+
+### Added
+
+- Added upload_image_directory function for Dataset class (sc-3367)
+- Added INFO level logs to track the local image upload progress (sc-3368)
+
+### Changed
+
+- Upload local images asynchronously (sc-3366)
+- Retry local image upload on failure (sc-3366)
+
+
 ## [1.3.1] - 2024-05-27
 
 ### Fixed
