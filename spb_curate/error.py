@@ -104,6 +104,10 @@ class NotFoundError(SuperbAIError):
     pass
 
 
+class RetryableError(SuperbAIError):
+    pass
+
+
 class TooManyRequestsError(SuperbAIError):
     """HTTP CODE: 429"""
 
@@ -111,6 +115,10 @@ class TooManyRequestsError(SuperbAIError):
 
 
 # -- SDK ERRORS --
+
+
+class DependencyError(Exception):
+    pass
 
 
 class ValidationError(Exception):

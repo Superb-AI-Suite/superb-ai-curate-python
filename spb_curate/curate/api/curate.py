@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import asyncio
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-import requests
+import aiohttp
 
-from spb_curate import api_requestor, error, util
+from spb_curate import api_requestor, error, http_client, util
 from spb_curate.abstract.api.resource import (
     CreateResource,
     DeleteResource,
@@ -15,7 +17,11 @@ from spb_curate.abstract.api.resource import (
 )
 from spb_curate.curate.api import settings
 from spb_curate.curate.api.abstract import BaseImageSource
-from spb_curate.curate.api.enums import JobType, SearchFieldMappingType
+from spb_curate.curate.api.enums import (
+    JobType,
+    SearchFieldMappingType,
+    SupportedImageFormat,
+)
 from spb_curate.curate.api.job import Job
 from spb_curate.curate.model.annotation_types import (
     AnnotationType,
@@ -710,6 +716,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         "modify": "patch",
     }
     _object_type = "dataset"
+    _supported_image_extensions = SupportedImageFormat.__members__
 
     @classmethod
     def fetch(
@@ -1511,6 +1518,84 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             params=params,
         )
 
+    def upload_images_from_directory(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        directory_path: Union[str, Path],
+        recursive: bool = True,
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that uploads image files in the given directory.
+
+        Parameters
+        ----------
+        directory_path
+            The path of the directory to search for image files to upload.
+            Supports a string path or a ``Path`` object that points to the directory.
+        recursive
+            Whether to recursively search through the given directory.
+            If set to ``True``, the function searches through nested directories.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        if isinstance(directory_path, str):
+            directory_path = Path(directory_path)
+
+        if not directory_path.is_dir():
+            raise error.ValidationError("The provided path is not a valid directory.")
+
+        if recursive:
+            file_iterator = directory_path.rglob("*")
+        else:
+            file_iterator = directory_path.glob("*")
+
+        images: List[Image] = []
+
+        for file_path in file_iterator:
+            if file_path.is_file():
+                file_extension = file_path.suffix.upper().lstrip(".")
+
+                if file_extension in self._supported_image_extensions:
+                    image_key = str(os.path.relpath(file_path, directory_path))
+
+                    if len(image_key) > settings.MAX_IMAGE_KEY_LENGTH:
+                        raise error.ValidationError(
+                            f"Automatically generated image key {image_key} exceeds"
+                            f" the {settings.MAX_IMAGE_KEY_LENGTH} characters limit."
+                        )
+
+                    images.append(
+                        Image(
+                            key=image_key,
+                            source=ImageSourceLocal(asset=file_path),
+                            metadata={},
+                        )
+                    )
+
+        if images:
+            return self.add_images(
+                access_key=access_key,
+                team_name=team_name,
+                images=images,
+                asynchronous=asynchronous,
+            )
+
+        raise error.ValidationError("There are no image files in the given directory.")
+
 
 class Image(DeleteResource, PaginateResource, ModifyResource):
     _endpoints = {
@@ -1572,7 +1657,48 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             self[k] = util.convert_to_superb_ai_object(data=v)
 
     @classmethod
-    def __upload_local_images(
+    async def __upload_asset(cls, *, key: str, source: ImageSourceLocal, url: str):
+        attempt = 0
+
+        while attempt < http_client.MAX_RETRY_COUNT:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.put(
+                        url, data=await source.get_asset()
+                    ) as response:
+                        if response.status == 200:
+                            return
+                        elif response.status in http_client.STATUS_FORCE_SET:
+                            attempt += 1
+                            if attempt < http_client.MAX_RETRY_COUNT:
+                                await asyncio.sleep(
+                                    http_client.calculate_backoff(attempt=attempt)
+                                )
+                            else:
+                                raise error.RetryableError(
+                                    f"Failed to upload after "
+                                    f"{http_client.MAX_RETRY_COUNT} attempts. "
+                                    f"Status code: {response.status}"
+                                )
+
+                        else:
+                            raise error.SuperbAIError(
+                                "There was an error in uploading the local file of the "
+                                f"image with the key '{key}'."
+                                f"Status code: {response.status}"
+                            )
+            except aiohttp.ClientError as e:
+                attempt += 1
+                if attempt < http_client.MAX_RETRY_COUNT:
+                    await asyncio.sleep(http_client.calculate_backoff(attempt=attempt))
+                else:
+                    raise error.RetryableError(
+                        f"Failed to upload after {http_client.MAX_RETRY_COUNT} "
+                        f"attempts due to a network error: {str(e)}"
+                    )
+
+    @classmethod
+    async def __upload_local_images(
         cls,
         *,
         access_key: Optional[str] = None,
@@ -1591,34 +1717,6 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
         N = len(images)
         last_i = 0  # slice position for the source list
-
-        def upload_assets(file_sizes: List[int]):
-            # First generate presigned urls
-            response, access_key = requestor.request(
-                method="post",
-                url=url,
-                params={"file_sizes": file_sizes},
-                headers=None,
-            )
-
-            assets = util.convert_to_superb_ai_object(
-                data=response, access_key=access_key, team_name=team_name
-            )
-
-            # Upload asset data to S3 and save the asset_id
-            for asset_i, asset in enumerate(assets.get("results", [])):
-                source = images[last_i + asset_i].source
-                data = source.get_asset()
-                put_image_response = requests.put(asset.get("upload_url"), data=data)
-                source.unload_asset(force=False)
-
-                if put_image_response.status_code != 200:
-                    raise error.SuperbAIError(
-                        f"There was an error in uploading the local file of the image with the key '{images[last_i + asset_i].key}'."
-                    )
-
-                images[last_i + asset_i].source.update({"asset_id": asset.get("id")})
-
         i = 0
         total_transfer_size = 0
         file_sizes = []
@@ -1640,7 +1738,39 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
                 or len(file_sizes) == bulk_upload_object_max
                 or i == (N - 1)
             ):
-                upload_assets(file_sizes=file_sizes)
+                # First generate presigned urls
+                response, access_key = requestor.request(
+                    method="post",
+                    url=url,
+                    params={"file_sizes": file_sizes},
+                    headers=None,
+                )
+
+                assets = util.convert_to_superb_ai_object(
+                    data=response, access_key=access_key, team_name=team_name
+                )
+
+                tasks = []
+
+                # Upload asset data to S3 and save the asset_id
+                for asset_i, asset in enumerate(assets.get("results", [])):
+                    image: Image = images[last_i + asset_i]
+                    tasks.append(
+                        cls.__upload_asset(
+                            key=image.key,
+                            source=image.source,
+                            url=asset.get("upload_url"),
+                        )
+                    )
+                    images[last_i + asset_i].source.update(
+                        {"asset_id": asset.get("id")}
+                    )
+
+                # Run all tasks concurrently
+                await asyncio.gather(*tasks)
+
+                util.log_info(f"Uploading local images: {i + 1} of {N}")
+
                 total_transfer_size = 0
                 file_sizes = []
                 last_i = i + 1
@@ -1648,6 +1778,30 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             i += 1
 
         return images
+
+    @classmethod
+    def __run_upload_local_images(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        images: List[Image],
+    ) -> List[Image]:
+        async_fn = cls.__upload_local_images(
+            access_key=access_key, team_name=team_name, images=images
+        )
+
+        if util.is_running_in_notebook():
+            # In Jupyter Notebook, we check if the event loop is running
+            try:
+                import nest_asyncio
+            except ImportError:
+                raise error.DependencyError(
+                    "When running in Jupyter Notebook, `nest_asyncio` is required."
+                )
+
+            nest_asyncio.apply()
+        return asyncio.run(async_fn)
 
     @classmethod
     def create_bulk(
@@ -1693,7 +1847,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
         # Upload all local images to s3 storage and retrieve the asset_ids
         if local_images:
-            param_images += cls.__upload_local_images(
+            param_images += cls.__run_upload_local_images(
                 access_key=access_key, team_name=team_name, images=local_images
             )
 
@@ -2233,6 +2387,10 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
 
 
 class ImageSourceLocal(BaseImageSource):
+    _asset: Optional[bytes] = None
+    _asset_path: Optional[str] = None
+    _asset_size: Optional[int] = None
+
     def __init__(
         self,
         *,
@@ -2266,32 +2424,41 @@ class ImageSourceLocal(BaseImageSource):
 
     def __set_asset(self, *, asset: bytes):
         self._asset = asset
-        self._asset_size = len(asset)
 
-    def get_asset(self) -> bytes:
-        self.load_asset()
+    async def get_asset(self) -> bytes:
+        return await self.load_asset()
 
-        return getattr(self, "_asset")
+    async def read_file(self) -> bytes:
+        if self._asset is not None:
+            return self._asset
 
-    def load_asset(self) -> bytes:
-        if not hasattr(self, "_asset"):
-            if hasattr(self, "_asset_path"):
-                with open(self._asset_path, "rb") as fp:
-                    self.__set_asset(asset=fp.read())
-            else:
-                raise error.ValidationError(
-                    "Local image file path or bytes not supplied."
-                )
+        if self._asset_path is not None:
+            loop = asyncio.get_event_loop()
+            with open(self._asset_path, "rb") as fp:
+                return await loop.run_in_executor(None, fp.read)
+
+        raise error.ValidationError("Local image file path not supplied.")
+
+    async def load_asset(self) -> bytes:
+        if self._asset is None:
+            return await self.read_file()
 
         return self._asset
 
     def unload_asset(self, *, force: bool = True):
-        if hasattr(self, "_asset") and force:
-            delattr(self, "_asset")
+        if force:
+            self._asset = None
 
     def get_asset_size(self) -> int:
-        if not hasattr(self, "_asset_size"):
-            self.load_asset()
+        if self._asset_size is None:
+            if self._asset is not None:
+                self._asset_size = len(self._asset)
+            elif self._asset_path is not None:
+                self._asset_size = os.path.getsize(self._asset_path)
+            else:
+                raise error.ValidationError(
+                    "Local image file path or bytes not supplied."
+                )
 
         return self._asset_size
 
