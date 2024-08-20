@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1.post1] - 2024-08-20
+
+### Fixed
+
+- Fixed readthedocs build
+
 ## [1.4.1] - 2024-08-19
 
 ### Fixed
@@ -26,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Upload local images asynchronously (sc-3366)
 - Retry local image upload on failure (sc-3366)
-
 
 ## [1.3.1] - 2024-05-27
 
