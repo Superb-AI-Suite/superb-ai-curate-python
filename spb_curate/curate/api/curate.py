@@ -1749,7 +1749,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        annotations: Optional[list[Annotation]] = None,
+        annotations: Optional[List[Annotation]] = None,
         annotation_ids: Optional[List[str]] = None,
         asynchronous: bool = True,
     ) -> Job:
