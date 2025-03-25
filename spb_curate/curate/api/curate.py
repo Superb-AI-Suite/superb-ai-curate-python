@@ -324,7 +324,7 @@ class Annotation(CreateResource, DeleteResource, ModifyResource, PaginateResourc
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         dataset_id: str,
-        annotations: Optional[list[Annotation]] = None,
+        annotations: Optional[List[Annotation]] = None,
         annotation_ids: Optional[List[str]] = None,
         asynchronous: bool = True,
     ) -> Job:
