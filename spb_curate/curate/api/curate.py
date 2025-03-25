@@ -1171,6 +1171,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         images: List[Image],
+        slice: Optional[str] = None,
         asynchronous: bool = True,
     ) -> Job:
         """
@@ -1180,6 +1181,8 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         ----------
         images
             Newly initialized images to add.
+        slice
+            The name of a slice to add the images to.
         asynchronous
             Whether to immediately return the job after creating it.
             If set to ``False``, the function waits for the job to finish before returning.
@@ -1199,6 +1202,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             team_name=team_name,
             dataset_id=self.id,
             images=images,
+            slice=slice,
             asynchronous=asynchronous,
         )
 
@@ -1811,6 +1815,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         team_name: Optional[str] = None,
         dataset_id: str,
         images: List[Union[Image, dict]],
+        slice: Optional[str] = None,
         asynchronous: bool = True,
     ) -> Job:
         """
@@ -1822,6 +1827,8 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             The ID of the dataset to add the images to.
         images
             Newly initialized images to add.
+        slice
+            The name of a slice to add the images to.
         asynchronous
             Whether to immediately return the job after creating it.
             If set to ``False``, the function waits for the job to finish before returning.
@@ -1836,6 +1843,15 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         -------
             The created job.
         """
+        target_slice = None
+        if slice is not None:
+            target_slice = Slice.fetch(
+                access_key=access_key,
+                team_name=team_name,
+                dataset_id=dataset_id,
+                name=slice,
+            )
+
         param_images: List[Image] = []
         local_images: List[Image] = []
 
@@ -1855,14 +1871,19 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
             access_key=access_key, team_name=team_name, data=param_images
         )
 
+        job_param = {
+            "dataset_id": dataset_id,
+            "images": {"param_id": uploaded_param["id"]},
+        }
+
+        if target_slice is not None:
+            job_param["slice_id"] = target_slice.id
+
         job = Job.create(
             access_key=access_key,
             team_name=team_name,
             job_type=JobType.IMAGE_IMPORT,
-            param={
-                "dataset_id": dataset_id,
-                "images": {"param_id": uploaded_param["id"]},
-            },
+            param=job_param,
         )
 
         if not asynchronous:
