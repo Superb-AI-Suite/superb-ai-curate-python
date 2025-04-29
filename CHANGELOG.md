@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.5.0] - 2025-04-29
+
 ### Added
 
 - Added `slice` parameter for `Dataset.add_images()` and `Image.create_bulk()` so that users can add newly added dataset images directly to a slice (sc-3564)
 - Added annotation bulk delete jobs (sc-3570)
-
----
 
 ## [1.4.1.post1] - 2024-08-20
 
