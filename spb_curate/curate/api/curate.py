@@ -318,6 +318,150 @@ class Annotation(CreateResource, DeleteResource, ModifyResource, PaginateResourc
         )
 
     @classmethod
+    def delete_bulk(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        annotations: Optional[List[Annotation]] = None,
+        annotation_ids: Optional[List[str]] = None,
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that deletes annotations from a dataset.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to delete annotations from.
+        annotations
+            Annotations to delete.
+        annotation_ids
+            IDs of annotations to delete.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        if annotation_ids is None and annotations is None:
+            raise error.ValidationError(
+                "Must provide at least one of annotations or annotation_ids."
+            )
+
+        if annotation_ids is not None:
+            target_annotation_ids = annotation_ids
+        else:
+            target_annotation_ids = []
+
+        if annotations is not None:
+            for annotation in annotations:
+                if annotation.id is None:
+                    raise error.ValidationError(
+                        (
+                            "At least one of the provided annotations does not have an ID;"
+                            " annotations must be fetched from the dataset first."
+                        )
+                    )
+                target_annotation_ids.append(annotation.id)
+
+        job = Job.create(
+            access_key=access_key,
+            team_name=team_name,
+            job_type=JobType.DELETE_ANNOTATIONS_BY_IDS,
+            param={
+                "dataset_id": dataset_id,
+                "annotation_ids": target_annotation_ids,
+            },
+        )
+
+        if not asynchronous:
+            job.wait_until_complete()
+
+        return job
+
+    @classmethod
+    def delete_bulk_by_filters(
+        cls,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        dataset_id: str,
+        query: Optional[str] = None,
+        slice: Optional[str] = None,
+        annotation_classes: Optional[List[str]] = None,
+        annotation_types: Optional[List[str]] = None,
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that deletes annotations from a dataset based on the provided filters.
+        If none of query, slice, annotation_classes, or annotation_types is provided, all annotations in the dataset will be deleted.
+
+        Parameters
+        ----------
+        dataset_id
+            The ID of the dataset to delete annotations from.
+        query
+            A query string to filter the annotations to delete.
+        slice
+            The name of a slice to delete annotations from.
+        annotation_classes
+            A list of annotation classes to filter the annotations to delete.
+        annotation_types
+            A list of annotation types to filter the annotations to delete.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        annotation_filters: dict[str, Union[str, list[str]]] = {}
+
+        if query is not None:
+            annotation_filters["query"] = query
+
+        if slice is not None:
+            annotation_filters["slice"] = slice
+
+        if annotation_classes is not None:
+            annotation_filters["annotation_class_in"] = annotation_classes
+
+        if annotation_types is not None:
+            annotation_filters["annotation_type_in"] = annotation_types
+
+        job = Job.create(
+            access_key=access_key,
+            team_name=team_name,
+            job_type=JobType.DELETE_ANNOTATIONS_BY_FILTERS,
+            param={
+                "dataset_id": dataset_id,
+                "annotation_filters": annotation_filters,
+            },
+        )
+
+        if not asynchronous:
+            job.wait_until_complete()
+
+        return job
+
+    @classmethod
     def fetch(
         cls,
         *,
@@ -1411,9 +1555,9 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         *,
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
-        images: List[Image] = [],
-        image_ids: List[str] = [],
-        image_keys: List[str] = [],
+        images: Optional[List[Image]] = None,
+        image_ids: Optional[List[str]] = None,
+        image_keys: Optional[List[str]] = None,
         asynchronous: bool = True,
     ) -> Job:
         """
@@ -1603,6 +1747,96 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
             )
 
         raise error.ValidationError("There are no image files in the given directory.")
+
+    def delete_annotations(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        annotations: Optional[List[Annotation]] = None,
+        annotation_ids: Optional[List[str]] = None,
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that deletes annotations from the dataset.
+
+        Parameters
+        ----------
+        annotations
+            Annotations to delete.
+        annotation_ids
+            IDs of annotations to delete.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        return Annotation.delete_bulk(
+            access_key=access_key,
+            team_name=team_name,
+            dataset_id=self.id,
+            annotations=annotations,
+            annotation_ids=annotation_ids,
+        )
+
+    def delete_annotations_by_filters(
+        self,
+        *,
+        access_key: Optional[str] = None,
+        team_name: Optional[str] = None,
+        query: Optional[str] = None,
+        slice: Optional[str] = None,
+        annotation_classes: Optional[List[str]] = None,
+        annotation_types: Optional[List[str]] = None,
+        asynchronous: bool = True,
+    ) -> Job:
+        """
+        Creates a job that deletes annotations from the dataset based on the provided filters.
+        If none of query, slice, annotation_classes, or annotation_types is provided, all annotations in the dataset will be deleted.
+
+        Parameters
+        ----------
+        query
+            A query string to filter the annotations to delete.
+        slice
+            The name of a slice to delete annotations from.
+        annotation_classes
+            A list of annotation classes to filter the annotations to delete.
+        annotation_types
+            A list of annotation types to filter the annotations to delete.
+        asynchronous
+            Whether to immediately return the job after creating it.
+            If set to ``False``, the function waits for the job to finish before returning.
+        access_key
+            An access key for request authentication.
+            If provided, overrides the configuration.
+        team_name
+            A team name for request authentication.
+            If provided, overrides the configuration.
+
+        Returns
+        -------
+            The created job.
+        """
+        return Annotation.delete_bulk_by_filters(
+            access_key=access_key,
+            team_name=team_name,
+            dataset_id=self.id,
+            query=query,
+            slice=slice,
+            annotation_classes=annotation_classes,
+            annotation_types=annotation_types,
+            asynchronous=asynchronous,
+        )
 
 
 class Image(DeleteResource, PaginateResource, ModifyResource):
@@ -2280,7 +2514,7 @@ class Image(DeleteResource, PaginateResource, ModifyResource):
         asynchronous: bool = True,
     ) -> Job:
         """
-        Creates a job that deletes images from the dataset.
+        Creates a job that deletes images from a dataset.
 
         Parameters
         ----------
