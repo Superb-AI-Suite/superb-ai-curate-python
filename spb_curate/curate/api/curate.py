@@ -1528,6 +1528,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         access_key: Optional[str] = None,
         team_name: Optional[str] = None,
         directory_path: Union[str, Path],
+        slice: Optional[str] = None,
         recursive: bool = True,
         asynchronous: bool = True,
     ) -> Job:
@@ -1539,6 +1540,8 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
         directory_path
             The path of the directory to search for image files to upload.
             Supports a string path or a ``Path`` object that points to the directory.
+        slice
+            The name of a slice to add the images to.
         recursive
             Whether to recursively search through the given directory.
             If set to ``True``, the function searches through nested directories.
@@ -1595,6 +1598,7 @@ class Dataset(CreateResource, DeleteResource, PaginateResource, ModifyResource):
                 access_key=access_key,
                 team_name=team_name,
                 images=images,
+                slice=slice,
                 asynchronous=asynchronous,
             )
 
